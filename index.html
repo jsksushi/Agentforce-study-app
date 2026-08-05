@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgentForce Specialist 対策アプリ</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Baloo+2:wght@500;700;800&display=swap');
+
+:root{
+  --violet:#7C3AED;
+  --violet-deep:#5B21B6;
+  --pink:#FF3D9A;
+  --yellow:#FFC93C;
+  --mint:#22D3AA;
+  --sky:#3AB0FF;
+  --ink:#2B1E4A;
+  --cream:#FFF8EE;
+  --card:#FFFFFF;
+}
+
+*{box-sizing:border-box;}
+
+body{
+  margin:0;
+  font-family:'M PLUS Rounded 1c', sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 15% 8%, rgba(255,201,60,0.55) 0, transparent 40%),
+    radial-gradient(circle at 90% 15%, rgba(58,176,255,0.45) 0, transparent 38%),
+    radial-gradient(circle at 85% 90%, rgba(255,61,154,0.4) 0, transparent 42%),
+    linear-gradient(160deg, #6D28D9 0%, #8B5CF6 45%, #A855F7 100%);
+  min-height:100vh;
+  padding-bottom:40px;
+}
+
+.wrap{max-width:640px;margin:0 auto;padding:18px 16px 0;}
+
+@media (min-width:900px){
+  .wrap{max-width:720px;}
+}
+@media (max-width:360px){
+  .header h1{font-size:22px;}
+  .header p{font-size:12px;}
+}
+
+/* ---------- Header ---------- */
+.header{
+  text-align:center;
+  padding:22px 10px 14px;
+  color:#fff;
+}
+.header .spark{font-size:28px;display:inline-block;animation:spin 3.5s linear infinite;}
+@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+.header h1{
+  font-family:'Baloo 2', sans-serif;
+  font-weight:800;
+  font-size:26px;
+  margin:6px 0 2px;
+  letter-spacing:0.5px;
+  text-shadow:0 3px 0 rgba(0,0,0,0.15);
+}
+.header p{margin:0;font-size:13px;opacity:0.9;}
+
+/* ---------- Tabs ---------- */
+.tabs{
+  display:flex;
+  background:rgba(255,255,255,0.25);
+  border-radius:999px;
+  padding:5px;
+  margin:14px 0 18px;
+  backdrop-filter:blur(6px);
+}
+.tab-btn{
+  flex:1;
+  border:none;
+  background:transparent;
+  padding:11px 8px;
+  font-family:'M PLUS Rounded 1c', sans-serif;
+  font-weight:700;
+  font-size:14.5px;
+  border-radius:999px;
+  color:#fff;
+  cursor:pointer;
+  transition:all .2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+}
+.tab-btn.active{
+  background:#fff;
+  color:var(--violet-deep);
+  box-shadow:0 4px 12px rgba(0,0,0,0.18);
+}
+
+.view{display:none;}
+.view.active{display:block;animation:fadeUp .3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ---------- Glossary ---------- */
+.search-box{
+  display:flex;
+  align-items:center;
+  background:#fff;
+  border-radius:18px;
+  padding:10px 14px;
+  box-shadow:0 6px 16px rgba(75,20,120,0.18);
+  margin-bottom:12px;
+}
+.search-box input{
+  border:none;outline:none;flex:1;
+  font-family:'M PLUS Rounded 1c', sans-serif;
+  font-size:15px;background:transparent;
+}
+.search-box .icon{font-size:16px;margin-right:8px;opacity:.6;}
+
+.chip-row{
+  display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;
+  scrollbar-width:none;
+}
+.chip-row::-webkit-scrollbar{display:none;}
+.chip{
+  flex:0 0 auto;
+  padding:7px 14px;
+  border-radius:999px;
+  font-size:12.5px;
+  font-weight:700;
+  background:rgba(255,255,255,0.55);
+  color:#fff;
+  border:2px solid rgba(255,255,255,0.7);
+  cursor:pointer;
+  white-space:nowrap;
+  transition:.15s;
+}
+.chip.active{background:var(--yellow);color:var(--violet-deep);border-color:var(--yellow);}
+
+.count-line{color:#fff;font-size:12.5px;margin:0 2px 10px;opacity:.85;}
+
+.term-card{
+  background:var(--card);
+  border-radius:20px;
+  margin-bottom:12px;
+  box-shadow:0 6px 16px rgba(75,20,120,0.15);
+  overflow:hidden;
+  cursor:pointer;
+  border:3px solid transparent;
+  transition:border-color .15s, transform .1s;
+}
+.term-card:active{transform:scale(0.99);}
+.term-card.open{border-color:var(--yellow);}
+
+.term-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;
+  gap:10px;
+}
+.term-name{font-weight:700;font-size:15.5px;color:var(--violet-deep);}
+.term-cat-tag{
+  font-size:10.5px;font-weight:700;color:#fff;
+  background:var(--sky);
+  padding:3px 9px;border-radius:999px;
+  flex-shrink:0;
+}
+.term-arrow{font-size:13px;color:#bbb;transition:transform .2s;flex-shrink:0;}
+.term-card.open .term-arrow{transform:rotate(180deg);}
+
+.term-body{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .25s ease;
+  background:#FBF7FF;
+}
+.term-card.open .term-body{max-height:400px;}
+.term-body-inner{
+  padding:2px 16px 16px;
+  font-size:13.8px;
+  line-height:1.65;
+  color:#4a3a63;
+  border-top:1px dashed #e2d4f5;
+}
+.note-flag{
+  display:inline-block;margin-top:8px;font-size:11.5px;
+  background:#FFE9B0;color:#8a5a00;padding:3px 8px;border-radius:8px;font-weight:700;
+}
+
+.empty-msg{color:#fff;text-align:center;padding:30px 10px;opacity:.85;font-size:14px;}
+
+/* ---------- Quiz ---------- */
+.quiz-card{
+  background:#fff;border-radius:20px;padding:18px;
+  box-shadow:0 6px 16px rgba(75,20,120,0.15);
+  margin-bottom:14px;
+}
+.quiz-card h3{margin:0 0 8px;color:var(--violet-deep);font-size:16px;}
+.quiz-card p{font-size:13px;color:#665a7a;line-height:1.6;margin:0 0 10px;}
+textarea{
+  width:100%;min-height:150px;border-radius:14px;border:2px solid #e6def4;
+  padding:12px;font-family:'M PLUS Rounded 1c', sans-serif;font-size:13.5px;
+  resize:vertical;outline:none;
+}
+textarea:focus{border-color:var(--violet);}
+
+.btn{
+  border:none;border-radius:999px;padding:12px 20px;
+  font-family:'M PLUS Rounded 1c', sans-serif;font-weight:700;font-size:14px;
+  cursor:pointer;transition:transform .1s;
+}
+.btn:active{transform:scale(0.97);}
+.btn-primary{background:var(--pink);color:#fff;box-shadow:0 4px 10px rgba(255,61,154,0.4);}
+.btn-secondary{background:#EFE7FB;color:var(--violet-deep);}
+.btn-yellow{background:var(--yellow);color:var(--violet-deep);box-shadow:0 4px 10px rgba(255,201,60,0.5);}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+
+.preview-q{
+  background:#FBF7FF;border-radius:14px;padding:12px 14px;margin-bottom:10px;
+  border:1px solid #e6def4;
+}
+.preview-q .qnum{font-size:11px;font-weight:700;color:var(--sky);}
+.preview-q .qtext{font-weight:700;font-size:14px;margin:4px 0 8px;}
+.preview-q .opt{font-size:13px;padding:4px 0;color:#4a3a63;}
+.preview-q .opt.correct{color:#0a9d5e;font-weight:700;}
+.preview-q .exp{font-size:12px;color:#8a7aa0;margin-top:6px;}
+.preview-q .err{color:#e0455a;font-size:12.5px;font-weight:700;}
+
+.progress-bar{height:8px;background:#EFE7FB;border-radius:999px;overflow:hidden;margin-bottom:16px;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--pink),var(--yellow));transition:width .3s;}
+
+.q-num-label{font-size:12px;color:#8a7aa0;font-weight:700;margin-bottom:6px;}
+.q-text{font-size:16.5px;font-weight:700;color:var(--ink);margin-bottom:16px;line-height:1.5;}
+.opt-btn{
+  display:block;width:100%;text-align:left;
+  background:#FBF7FF;border:2px solid #e6def4;border-radius:14px;
+  padding:12px 14px;margin-bottom:10px;font-family:'M PLUS Rounded 1c', sans-serif;
+  font-size:14px;cursor:pointer;transition:.15s;color:var(--ink);
+}
+.opt-btn:hover{border-color:var(--violet);}
+.opt-btn.selected{border-color:var(--violet);background:#F1E9FE;}
+.opt-btn.correct{background:#E3FBEF;border-color:#22D3AA;color:#0a7a52;font-weight:700;}
+.opt-btn.wrong{background:#FDE9EC;border-color:#FF3D9A;color:#c0264c;font-weight:700;}
+.opt-btn:disabled{cursor:default;}
+
+.exp-box{
+  background:#FFF7E0;border-radius:14px;padding:12px 14px;margin-top:6px;
+  font-size:13px;color:#7a5a00;line-height:1.6;
+}
+
+.score-screen{text-align:center;padding:20px 10px;}
+.score-screen .big{font-family:'Baloo 2';font-size:44px;font-weight:800;color:#fff;}
+.score-screen .label{color:#fff;opacity:.9;font-size:14px;margin-bottom:14px;}
+
+.tag-row-small{display:flex;justify-content:center;gap:10px;margin-top:10px;flex-wrap:wrap;}
+
+.term-link{
+  color:var(--pink);
+  font-weight:700;
+  border-bottom:2px dotted var(--pink);
+  cursor:pointer;
+}
+.term-link:active{opacity:.6;}
+
+.back-to-quiz-btn{
+  display:none;
+  align-items:center;
+  gap:6px;
+  position:fixed;
+  right:18px;
+  bottom:24px;
+  z-index:50;
+  background:var(--ink);
+  color:#fff;
+  border:none;
+  border-radius:999px;
+  padding:13px 20px;
+  font-family:'M PLUS Rounded 1c', sans-serif;
+  font-weight:700;
+  font-size:14px;
+  cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,0.35);
+  animation:floatIn .3s ease;
+}
+.back-to-quiz-btn:active{transform:scale(0.96);}
+@keyframes floatIn{
+  from{opacity:0; transform:translateY(14px) scale(0.9);}
+  to{opacity:1; transform:translateY(0) scale(1);}
+}
+
+@keyframes cardPop{
+  0%{transform:scale(0.96); box-shadow:0 0 0 0 rgba(255,201,60,0.7);}
+  40%{transform:scale(1.02); box-shadow:0 0 0 10px rgba(255,201,60,0);}
+  100%{transform:scale(1); box-shadow:0 0 0 0 rgba(255,201,60,0);}
+}
+.term-card.just-jumped{
+  animation:cardPop .6s ease;
+}
+
+.data-status{
+  font-size:12px;color:#fff;text-align:center;opacity:.85;margin-top:4px;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <span class="spark">✨</span>
+    <h1>AgentForce Specialist Lab</h1>
+    <p>用語集でサクッと確認 → 4択クイズで実力チェック</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="glossary">📖 用語集</button>
+    <button class="tab-btn" data-tab="quiz">🎯 4択クイズ</button>
+  </div>
+
+  <!-- ================= GLOSSARY ================= -->
+  <div class="view active" id="view-glossary">
+    <button class="back-to-quiz-btn" id="backToQuizBtn">← クイズに戻る</button>
+    <div class="search-box">
+      <span class="icon">🔍</span>
+      <input id="searchInput" type="text" placeholder="用語を検索（例：グラウンディング）">
+    </div>
+    <div class="chip-row" id="chipRow"></div>
+    <div class="count-line" id="countLine"></div>
+    <div id="termList"></div>
+  </div>
+
+  <!-- ================= QUIZ ================= -->
+  <div class="view" id="view-quiz">
+
+    <div id="quiz-import-section" style="display:none;">
+      <div class="quiz-card">
+        <h3>問題を追加する</h3>
+        <p>下の書式で問題を貼り付けてください。区切り文字（空行 or 「---」）は自動で判定します。</p>
+        <textarea id="quizInput" placeholder="Q: 質問文をここに
+A) 選択肢1
+B) 選択肢2
+C) 選択肢3
+D) 選択肢4
+正解: B
+解説: 任意で解説を書けます
+
+（次の問題は空行か「---」で区切ってください）"></textarea>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="btnPreview">プレビューする</button>
+          <button class="btn btn-secondary" id="btnSample">サンプルを見る</button>
+          <button class="btn btn-secondary" id="btnCancelAdd">キャンセル</button>
+        </div>
+      </div>
+
+      <div id="previewArea"></div>
+    </div>
+
+    <div id="quiz-play-section" style="display:none;">
+      <div class="quiz-card" id="savedInfoCard">
+        <h3>問題バンク</h3>
+        <p id="savedCount"></p>
+        <div class="btn-row">
+          <button class="btn btn-yellow" id="btnStartQuiz">クイズを始める</button>
+          <button class="btn btn-secondary" id="btnAddMore">問題を追加する</button>
+          <button class="btn btn-secondary" id="btnClearData">データを消す</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="quiz-runtime" style="display:none;"></div>
+
+  </div>
+
+  <div class="data-status" id="dataStatus"></div>
+</div>
+
+
+<script>
+/* ============================================================
+   用語集データ
+   ※ 一般的なSalesforce/Agentforce公式情報・AI用語の一般知識に基づく説明です。
+   　 用語によっては解釈を補った部分（⚠マーク）があるので、試験前に公式Trailheadでの確認をおすすめします。
+============================================================ */
+const CATS = {
+  trust: "🛡️ Trust Layer",
+  llm: "🧠 LLM基礎",
+  prompt: "📝 Prompt Builder",
+  agent: "🤖 エージェント",
+  data: "🗄️ Data Cloud",
+  copilot: "🕰️ Copilot時代",
+  reply: "💬 応答生成",
+  feature: "🧩 Einstein機能",
+  call: "📞 通話/分析",
+  dev: "⚙️ 開発/運用",
+  other: "❓ その他"
+};
+
+const TERMS = [
+{t:"Einstein Trust Layer", c:"trust", d:"生成AIを安全にSalesforceで使うためのセキュリティの仕組み。プロンプトを送る前にデータマスキングやプロンプト防御をかけ、送った後はトーン検出や監査証跡の記録を行う。"},
+{t:"動的グラウンディング（Dynamic Grounding）", c:"trust", d:"LLMに渡すプロンプトに、その時点のSalesforceの実データ（顧客情報やレコード）をリアルタイムで埋め込む仕組み。回答を一般論ではなく、実際のデータに基づいたものにする。"},
+{t:"プロンプト防御（Prompt Defense）", c:"trust", d:"LLMが意図しない出力（ハルシネーションや悪意ある指示への追従）をしないように、システム側の指示・ガードレールを設定する仕組み。プロンプトインジェクション対策の一部でもある。"},
+{t:"データマスキング（Data Masking）", c:"trust", d:"氏名や住所などの機微情報をLLMに送る前にプレースホルダーに置き換える処理。回答が返ってきたら元の情報に戻す（デマスキング）。"},
+{t:"データ暗号化", c:"trust", d:"データを保存・送信する際に第三者が読めない形に変換すること。Salesforceでは保存データの暗号化（Shield Platform Encryptionなど）や通信の暗号化が該当する。"},
+{t:"AI監査証跡", c:"trust", d:"どんなプロンプトが送られ、どんな応答が返ってきたかを記録するログ機能。Einstein Trust Layerの一部で、説明責任やトラブル調査のために使われる。"},
+{t:"毒性スコアリング（安全カテゴリースコア）", c:"trust", d:"生成された応答に有害・不適切な内容が含まれていないかを、機械学習モデルでスコアリングする仕組み。スコアは0〜1の範囲で、0が最も有害、1が「毒性なし（安全）」を示す。このスコアは監査証跡の一部としてData Cloudに記録される。"},
+{t:"ジェイルブレイク", c:"trust", d:"AIに設定された制約やガードレールを、巧妙な指示文で回避させようとする行為。「無視して」「開発者モードで」などの指示がよく使われる。"},
+{t:"プロンプトインジェクション（攻撃）", c:"trust", d:"外部から与えるデータやユーザー入力の中に悪意ある指示を紛れ込ませ、AIに本来意図しない動作をさせる攻撃手法。"},
+
+{t:"LLM（大規模言語モデル）", c:"llm", d:"大量のテキストデータで学習された、文章の生成や理解を行うAIモデル。ChatGPTのGPTシリーズやSalesforceが接続するAnthropic/OpenAIのモデルなどが該当する。"},
+{t:"プロンプト", c:"llm", d:"LLMに対して与える入力文・指示文のこと。何をしてほしいかを伝える文章そのもの。"},
+{t:"Generative AI（生成AI）", c:"llm", d:"文章・画像・音声など、新しいコンテンツを生成できるAIの総称。Salesforceの文脈ではEinstein Generative AIとして、メール文面やレコード要約の自動生成などに使われる。"},
+{t:"Grounding（グラウンディング）", c:"llm", d:"LLMに実際のデータや文脈を与えて、事実に基づいた回答をさせること。動的グラウンディングはSalesforceデータを使ったグラウンディングの一種。"},
+{t:"コンテキスト", c:"llm", d:"LLMが応答を生成する際に参照できる、会話の履歴や関連情報のこと。コンテキストが多いほど的確な回答をしやすくなるが、上限（コンテキストウィンドウ）がある。"},
+{t:"ハイパーパラメータ", c:"llm", d:"モデルの学習や生成の挙動を調整する設定値のこと。frequency penalty・presence penalty・top-k サンプリングなどが代表例。"},
+{t:"トークン制限エラー / output tokens（出力トークン）", c:"llm", d:"LLMが一度に処理・生成できる文字量（トークン数）には上限があり、それを超えるとエラーになる。output tokensはLLMが生成する側のトークン数を指す。"},
+{t:"frequency penalty（頻度ペナルティ）", c:"llm", d:"同じ単語・フレーズを繰り返し使うことにペナルティを与えるパラメータ。値を上げると表現が単調になりにくい。"},
+{t:"presence penalty（存在ペナルティ）", c:"llm", d:"すでに出た単語が再度出現すること自体にペナルティを与えるパラメータ。頻度に関係なく「一度使った言葉」を避けやすくする。"},
+{t:"top-k サンプリング", c:"llm", d:"次に生成する単語の候補を、確率が高い上位k個に絞ってその中からランダムに選ぶ生成方式。kが小さいほど無難で予測しやすい文章になりやすい。⚠元の用語リストでは表記が崩れていたため、一般的なLLM用語「top-k sampling」として説明している。"},
+{t:"BYO-LLM（Bring Your Own LLM）", c:"llm", d:"Salesforce標準以外の、自社契約や自社構築のLLMをEinstein Trust Layer経由で接続して使う仕組み。"},
+
+{t:"Prompt Builder（Einstein Prompt Builder）", c:"prompt", d:"Agentforce Studio内でプロンプトテンプレートを作成・管理する機能。コードを書かずにGUIでLLMへの指示文とデータの埋め込みを設定できる。"},
+{t:"Flex（Flexプロンプトテンプレート）", c:"prompt", d:"Prompt Builderのテンプレート種類の一つ。他のテンプレート（項目生成・レコード概要・セールスメール）でカバーできない独自のユースケース向けに、複数のリソース（最大5つ）を自由に定義できる。"},
+{t:"項目生成プロンプトテンプレート（Field Generation）", c:"prompt", d:"レコードの特定の項目（フィールド）にAI生成テキストを差し込むためのテンプレート種類。編集画面の項目にAI生成ボタン（きらめきアイコン）が表示される。"},
+{t:"レコードの概要プロンプトテンプレート（Record Summary）", c:"prompt", d:"レコードの情報をもとに、リッチテキストの要約を自動生成するテンプレート種類。"},
+{t:"セールスメールプロンプトテンプレート（Sales Email）", c:"prompt", d:"取引先や商談などのレコード情報をもとに、パーソナライズされた営業メール文面を生成するテンプレート種類。「Einstein for Sales」の有効化が必要。"},
+{t:"マージフィールド / Apexマージフィールド / レコードマージフィールド", c:"prompt", d:"プロンプトテンプレートの中に「{!レコード.項目名}」のような形でSalesforceのデータを差し込む仕組み。標準の項目だけでなくApexで計算した値を差し込むこともできる。"},
+{t:"リソース（Resources）", c:"prompt", d:"Prompt Builderでプロンプトに差し込める入力データの単位。レコード、テキスト、コレクションなどの型があり、Flexテンプレートでは自分で定義できる。"},
+{t:"プレースホルダー", c:"prompt", d:"実際の値が入る前の「仮の場所」を示す記号。マージフィールドやデータマスキングの置き換え先として使われる。"},
+{t:"テンプレートトリガープロンプトフロー", c:"prompt", d:"プロンプトテンプレートの実行をFlow（フロー）から呼び出す仕組み。プロンプトテンプレート専用のフロー種別で、自動化の中にAI生成を組み込める。⚠正式なUI上の呼称は変更される可能性があるため、試験前に最新のTrailhead表記を確認推奨。"},
+{t:"Prompt Management", c:"prompt", d:"組織内で作成された複数のプロンプトテンプレートを一覧・管理する機能領域のこと。"},
+{t:"差し込みだけでは足りないときにApexが向いているケース", c:"prompt", d:"マージフィールドは単純な値の差し込みしかできないため、条件分岐や計算、複数レコードの集計など複雑なロジックが必要な場合はApexクラスを作り、その結果をプロンプトに渡す設計が向いている。"},
+
+{t:"Agent Builder", c:"agent", d:"Agentforceのエージェント（トピックやアクション）をGUIで作成・編集する画面。会話の流れやエージェントが使える機能を設定する。"},
+{t:"Agentforce Service Agent", c:"agent", d:"カスタマーサービス向けに問い合わせ対応・FAQ回答・エスカレーションなどを自律的に行うエージェントのテンプレート。"},
+{t:"SDR Agent（Agentforce SDR）", c:"agent", d:"Webサイトなどからの問い合わせに自律的に返信し、商談化・アポイント獲得までを進める営業向けエージェント。"},
+{t:"Agentforce Employee Agent", c:"agent", d:"社内の従業員がSalesforce上やSlack上で使う、業務サポート向けのエージェントテンプレート。"},
+{t:"Agent Knowledge", c:"agent", d:"エージェントが回答の根拠として参照する、Salesforce Knowledge記事などの情報源のこと。エージェントのグラウンディング元になる。"},
+{t:"ダイアログパターン", c:"agent", d:"エージェントが会話の中でどのように質問・確認・応答を進めるかという型（パターン）のこと。ユーザーの意図を確認してから実行する、複数ターンで情報を集めるなどの設計に関わる。"},
+{t:"Channel Expert / Slack Employee Help / Slack Onboarding / Slack Customer Insights", c:"agent", d:"Slack上で使えるAgentforceのエージェントテンプレート群。従業員のヘルプ対応・オンボーディング支援・顧客インサイト提供など、用途別に用意されている。⚠一部は提供時期や名称が変わる可能性があるため参考情報として扱ってください。"},
+{t:"Flow Automation Agent", c:"agent", d:"⚠公式ドキュメントでの標準的な名称としては確認できなかった用語。文脈的には「Flow（自動化）をアクションとして実行するエージェント」を指していると推測されるが、断定はできません。試験直前に公式情報での確認をおすすめします。"},
+{t:"Security Agent / Agent for Setup / Knowledge Space Agent", c:"agent", d:"⚠これらも公式の標準テンプレート名として明確に確認できませんでした。Salesforceの管理・セキュリティ設定支援やナレッジ管理支援を行うエージェントの構想を指している可能性がありますが、正確な定義は不明です。「わかりません」というのが正直なところなので、公式Trailheadでの確認をおすすめします。"},
+
+{t:"Data Cloud", c:"data", d:"Salesforceのデータを統合・ハーモナイズし、リアルタイムでAIやエージェントから参照できるようにする基盤。Agentforceのグラウンディング元としても使われる。"},
+{t:"リトリーバー（Retriever）", c:"data", d:"Data Cloud内のデータから、質問に関連する情報を検索して取り出す仕組み。個別のリトリーバーではフィルターや取得フィールド、件数制限などを細かく設定できる。"},
+{t:"セマンティック類似度エンジン", c:"data", d:"単語の一致だけでなく、意味的な近さ（似た意味かどうか）をもとに関連情報を検索する仕組み。ベクトル検索の考え方に基づく。⚠Data Cloudのリトリーバー機能の一般的な説明として補っています。"},
+{t:"Salesforceビッグオブジェクト（Big Objects）", c:"data", d:"数億件規模の大量データを保存できるSalesforceのオブジェクト種別。通常のオブジェクトよりも大容量のアーカイブデータや履歴データの保存に向く。"},
+{t:"リポジトリ", c:"data", d:"データやコードなどをまとめて保管する場所の総称。文脈によりGitのコードリポジトリを指す場合と、データの格納先を指す場合がある。"},
+
+{t:"Einstein Copilot", c:"copilot", d:"Agentforceの前身にあたる、会話型AIアシスタント機能の旧名称。現在はAgentforceのエージェント機能に統合・発展している。"},
+{t:"Copilot Builder", c:"copilot", d:"Einstein Copilot時代に使われていた、会話AIのトピック・アクションを設定する画面の旧名称。現在のAgent Builderの前身にあたる。"},
+{t:"Copilotアクション / コパイロットカスタムアクション", c:"copilot", d:"Einstein Copilotが実行できる機能単位のこと。標準で用意されたアクションに加え、Flowやプロンプトテンプレートを使って独自のアクション（カスタムアクション）を作成できた。"},
+{t:"Einstein Studio Model Builder（モデルビルダー）", c:"copilot", d:"予測AIモデルを取り込み・作成・管理するための機能。外部で学習したモデルをSalesforceに接続する際にも使われる。"},
+{t:"Model Playground", c:"copilot", d:"接続したLLM（基盤モデル）の動作を、本番の業務に組み込む前に安全に試し・比較・検証できる実験環境。ここで温度（Temperature）・頻度ペナルティ・存在ペナルティなどのハイパーパラメータを調整して出力の傾向を確認できる。"},
+{t:"Einstein Recommendation Builder", c:"copilot", d:"予測AIを使ったレコメンデーション（おすすめ商品・おすすめアクションなど）をノーコードで構築できる機能。"},
+{t:"アインシュタインセールスインサイト（Einstein Sales Insights）", c:"copilot", d:"商談やメールのやり取りからAIが重要な情報（競合の言及やリスクなど）を検出し、営業担当者に知らせる機能。"},
+{t:"Copilot Analytics", c:"copilot", d:"⚠正式名称として確認できませんでした。文脈的にはCopilot/エージェントの利用状況や会話の分析機能を指していると推測されますが、断定はできません。"},
+
+{t:"Service Replies / Case Replies / Knowledge Replies", c:"reply", d:"Service Cloud向けのEinstein機能で、Knowledge記事などの情報をもとに、問い合わせへの返信文案をAIが提案する機能群。ケースの文脈やナレッジの内容に応じて回答案を生成する。⚠3つの名称がどこまで別機能として区別されているかは文脈により異なるため、公式ヘルプでの確認をおすすめします。"},
+{t:"Draft with Einstein機能", c:"reply", d:"メールやケースへの返信文をEinsteinが自動で下書きしてくれる機能。ユーザーはそれを確認・編集してから送信する。"},
+{t:"会話データ", c:"reply", d:"チャットや通話のやり取りの記録データ。AIによる要約・感情分析・返信提案などの元データとして使われる。"},
+{t:"Service AI Grounding", c:"reply", d:"Service Cloud領域のAI機能が回答を生成する際に、Salesforce Knowledgeやケースデータなど実際の情報に基づかせる（グラウンディングする）仕組み。"},
+{t:"Salesforce Knowledge", c:"reply", d:"FAQやマニュアルなどのナレッジ記事を管理するSalesforceの標準機能。AgentforceやEinstein機能の重要なグラウンディング元になる。"},
+{t:"Einstein（Agentforce）データライブラリ", c:"feature", d:"AIが「承認された社内の正しい情報だけ」を根拠に回答できるようにするための、信頼済みナレッジの保管・検索基盤。PDFなどのファイルやSalesforce Knowledge記事をアップロードすると、内容がベクトル化・インデックス化され、RAG（検索拡張生成）でエージェントの回答のグラウンディング元として使われる。Salesforce Knowledgeが組織で有効になっていないと、ナレッジベースをデータソースとして選ぶ選択肢自体が表示されない点に注意。"},
+
+{t:"コールエクスプローラー（Call Explorer）", c:"call", d:"録音・書き起こしされた通話データを検索・閲覧するための機能。特定のキーワードが話された箇所などを探せる。"},
+{t:"コールインサイト（Call Insights）", c:"call", d:"通話内容をAIが分析し、重要なトピックや競合言及、フォローアップすべき事項などを自動で抽出する機能。"},
+{t:"センチメント分析（Sentiment）", c:"call", d:"文章や発言がポジティブ・ネガティブ・中立のどれに近いかをAIが判定する分析手法。"},
+{t:"インテント分析（Intent）", c:"call", d:"ユーザーの発言の「意図」（何をしたいのか）を推定する分析手法。チャットボットやエージェントがどのトピック・アクションにつなぐべきかの判断に使われる。"},
+{t:"コンテキスト分析（Context / Discourse）", c:"call", d:"会話の流れ全体（前後のやり取り）を踏まえて、発言の意味を解釈する分析。単発の発言だけでなく文脈を考慮する。"},
+{t:"NLP解析（自然言語処理）", c:"call", d:"人間の言葉をコンピュータが解析・理解するための技術全般。構文解析・意味解析・感情分析などを含む総称。"},
+{t:"構文解析", c:"call", d:"文章を単語・句・文法構造に分解し、文法的な構造を明らかにする処理。"},
+{t:"セマンティック解析（意味解析）", c:"call", d:"文章の文法構造だけでなく、実際の「意味」を解析する処理。同じ構文でも意味が異なる文を区別する。"},
+{t:"セグメンテーション", c:"call", d:"データや顧客、テキストなどをある基準でグループ分けすること。マーケティングでの顧客セグメント分けや、テキストを文単位に区切る処理などを指す。"},
+{t:"トークン化", c:"call", d:"文章を単語やサブワードなどの最小単位（トークン）に分割する処理。LLMが文章を処理する最初のステップ。"},
+{t:"ステミング", c:"call", d:"単語の語尾変化（複数形・過去形など）を取り除き、語幹（基本形）に揃える処理。自然言語処理の前処理でよく使われる。"},
+
+{t:"デプロイ / デプロイメントベストプラクティス", c:"dev", d:"作成した設定（エージェント・プロンプトテンプレート・フローなど）を開発環境から本番環境へ反映すること。順序（例：フロー→トピック→エージェントの順で確認するなど）や段階的なリリースを考慮するのがベストプラクティス。"},
+{t:"REST API / REST APIコールアウト", c:"dev", d:"外部システムとHTTP通信でデータをやり取りするための標準的な仕組み。SalesforceからAgentforceやプロンプトテンプレートを外部から呼び出したり、逆に外部システムのデータを取得したりする際に使う。"},
+{t:"プロビジョニング", c:"dev", d:"サービスやライセンス、環境をあらかじめ用意・設定して使える状態にすること。Agentforceの利用開始前の有効化・ライセンス割り当てなどが該当する。"},
+{t:"アプリビルダー（Lightning App Builder）", c:"dev", d:"画面やコンポーネントをドラッグ＆ドロップで配置し、Salesforceの画面レイアウトを作成する機能。"},
+{t:"トラブルシューティング", c:"dev", d:"問題が発生した際に、原因を特定して解決すること。エージェントが想定通りに動かない場合のログ確認や設定見直しなどが含まれる。"},
+{t:"レガシーフィールド", c:"dev", d:"古い仕組みで作られた項目で、現在は非推奨だが後方互換のために残されている項目のこと。"},
+{t:"ダイナミックフィールド / ダイナミックパネル", c:"dev", d:"条件によって表示する項目やセクションを動的に切り替えられる仕組み（Dynamic Forms / Dynamic Related List等）。レコードの状態に応じて必要な情報だけを表示できる。"},
+{t:"動的フォームと動的フィード（動的関連リスト）の違い", c:"dev", d:"動的フォーム（Dynamic Forms）はレコード詳細画面の「項目」を条件付きで出し分ける機能、動的関連リスト・フィードは「関連リストやフィード」を条件付きで出し分ける機能。対象がフィールドか関連情報かという違いがある。⚠質問の意図が「フィード」か「関連リスト」か特定できなかったため、一般的な対比として説明しています。"},
+
+{t:"アーキテクチャ", c:"other", d:"システムやサービス全体の設計・構造のこと。「Einstein Trust Layerアーキテクチャ」であれば、Trust Layerがどんな要素・処理の流れで構成されているかを指す。"},
+{t:"データ制御といえば", c:"other", d:"⚠この語句だけでは何を指しているか特定できませんでした。文脈（例：権限、共有ルール、フィールドレベルセキュリティ、データマスキングなど）によって答えが変わるため、元の設問や前後の文脈を教えていただければ調べます。"},
+
+/* ---- 同僚のメモを取り込んで追加した用語 ---- */
+{t:"RAG（検索拡張生成）", c:"llm", d:"検索（Retrieval）と生成（Generation）を組み合わせたアーキテクチャ。LLMが学習済みの知識だけに頼らず、外部のデータベースや文書から関連情報を検索して参照し、より正確で根拠のある回答を生成する技術。ハルシネーション（事実に基づかない生成）を減らす効果がある。"},
+{t:"ファインチューニング", c:"llm", d:"すでに学習済みのモデルをベースに、特定のタスクやデータセットに適応させるための追加学習を行うこと。ゼロから学習させるより効率的にモデルを専門化できる。"},
+{t:"温度（Temperature）", c:"llm", d:"LLMの出力のランダム性・創造性を調整するハイパーパラメータ。値が高いほど多様で創造的な出力になり、低いほど安定・決定的な出力になる。Model Playgroundなどで調整できる。"},
+
+{t:"ロール（エージェントの構成要素）", c:"agent", d:"エージェントの目的を定義する要素。エージェントが遂行すべきジョブと、チーム内で達成すべき広い目標を表す。"},
+{t:"知識（エージェントの構成要素）", c:"agent", d:"エージェントが成果を出すために参照するデータのこと。会社のナレッジ記事、CRMデータ、Data Cloud経由の外部データ、公開Webサイトなどが該当する。"},
+{t:"アクション（エージェントの構成要素）", c:"agent", d:"エージェントが達成可能な、事前定義されたタスクの単位。フロー・プロンプトテンプレート・Apexなどを実行する形で実現される。"},
+{t:"ガードレール（エージェントの構成要素）", c:"agent", d:"エージェントが稼働時に従うべきガイドライン。できること／できないこと、人間へのエスカレーションが必要な条件などを自然言語の指示で定義する。Einstein Trust Layerのセキュリティ機能に基づく場合もある。"},
+{t:"チャネル（エージェントの構成要素）", c:"agent", d:"エージェントがジョブを遂行する先となるアプリケーションのこと。Webサイト、CRM、モバイルアプリ、Slackなどが該当する。"},
+{t:"Agentforce推論エンジン", c:"agent", d:"ユーザーの発話を解釈し、どのトピック・アクションに該当するかを識別してエージェントの応答を組み立てる中核部分。トピックを選んだ後、各アクションに設定された優先度をもとに実行するアクションを判断する。"},
+{t:"トピック分類", c:"agent", d:"事前に定義された説明をもとに、ユーザーの発言をどのトピックに当てはめるかを判断する処理。適切なトピックに分類されることで、そのトピックに紐づく指示・アクションが実行される。"},
+{t:"サービスプランナー（エージェント種別）", c:"agent", d:"サービス担当者向けに、簡潔なケースサマリーや解決に向けた段階的なガイダンスを提供し、ケース解決を支援するエージェントの種別。"},
+{t:"セールスコーチ（エージェント種別）", c:"agent", d:"営業担当者専属のAIコーチとして、案件に応じたロールプレイやパーソナライズされたフィードバックを提供するエージェントの種別。"},
+{t:"エージェントのフォールバック応答", c:"agent", d:"エージェントがユーザーのリクエストを理解できない、または必要な情報を見つけられない場合に返す汎用メッセージ（例：「うまく理解できませんでした。別の言い方で試してもらえますか？」）のこと。"},
+{t:"エージェントアクションの実行順序の保証", c:"agent", d:"エージェントに特定の順序でアクションを実行させたい場合、LLMの解釈だけに頼るのではなく、各ステップの完了状態をカスタム変数に保存し、前のステップが完了している場合のみ後続アクションが実行されるよう条件付きフィルターで制御する設計が推奨される。"},
+
+{t:"検索インデックス（Data Cloud）", c:"data", d:"顧客データを高速かつ安全に検索・取得できるようにするための、Data Cloudのデータ準備機能。コンテンツの読み込み・チャンク化（分割）・ベクター化・保存までを行い、リトリーバーが検索できる状態を作る。"},
+{t:"ベクトル検索", c:"data", d:"意味的な類似性に基づいて検索を行う方式。スペルミスや表記ゆれ、同義語、発音が似た単語、略語などに強く、長い自然言語の質問で一般的な情報を探す場合に向いている。"},
+{t:"ハイブリッド検索", c:"data", d:"キーワード検索（構造化データに強い＝完全一致・高精度）とベクトル（セマンティック）検索（自然言語の質問に強い＝意味理解）を組み合わせた検索方式。特定の検索語を含む長文クエリなど、両方の要素が混在する現実的な検索に最も適したベストプラクティスとされる。"},
+{t:"データスペース（Data Space）", c:"data", d:"Data Cloudにおいて、データの可視性・アクセス範囲・検索対象を論理的に分離するためのセキュリティ境界。顧客データ・パートナーデータ・社内業務データ・機密データなどが混在する環境で、「誰が・どのデータを・どのAI機能から参照できるか」を制御するために使われる。"},
+{t:"DMO（Data Model Object）", c:"data", d:"Data Cloudに保存されているデータの論理的な構造（データモデル）のこと。Knowledgeやファイルなどの実体データをDMOとして表現する。"},
+{t:"DMQ（Data Model Query）", c:"data", d:"Data Cloud専用のクエリ方式。DMOを対象にデータを取得するための仕組み。なお、Prompt BuilderからDMO/DMQを直接クエリしてData Cloudデータを参照することはできず、プロンプト開始フローなどを経由する必要がある。"},
+{t:"リトリーバーの最適化（レイテンシ対策）", c:"data", d:"AI応答のグラウンディングにかかる遅延を抑えるには、各検索の対象範囲が絞られるようリトリーバーのフィルターを適切に定義することが重要。フィルターが広すぎると関連性の低い情報が混ざり、狭すぎると必要な情報を取得できなくなる。"},
+
+{t:"レコードスナップショット", c:"prompt", d:"Salesforceで定期的にレポートのデータを保存し、その履歴を時系列で追跡できる機能。プロンプトテンプレートでこの履歴データをグラウンディングに使う場合、参照したいフィールドをあらかじめページレイアウトに配置しておく必要がある。"},
+{t:"三重引用符（\"\"\"）", c:"prompt", d:"プロンプト内でLLMに厳密に守らせたい指示（ガイドラインや制約）を新しい行で明示したい場合に、その部分を囲むために使う記法。"},
+{t:"項目生成プロンプトの前提条件", c:"prompt", d:"項目生成プロンプトテンプレートを作成するには、組織のAPIバージョンが59以上であること、対象項目が配置されるLightningページレイアウトが動的フォームにアップグレードされていることが必要。作成後はページレイアウト上でフィールドとテンプレートを明示的に関連付けることで、Sparkleアイコン（AI生成ボタン）が表示される。"},
+{t:"項目生成プロンプトのトークン制限エラーの原因", c:"prompt", d:"項目生成プロンプトはレコードごとに内容を動的に差し込んで実行されるため、レコードによって入力データ量や生成トークン数が変動する。この変動により、一部のレコードだけがトークン上限を超えて失敗することがあり、「ランダムに失敗しているように見える」原因になる。"},
+{t:"プロンプトテンプレートの権限（作成・実行）", c:"prompt", d:"プロンプトテンプレートを新規作成する権限には「データクラウド管理者」と「プロンプトテンプレートマネージャー」の両方が必要。実行だけできればよいユーザーには「プロンプトテンプレートユーザー」権限セットを割り当てる。"},
+
+{t:"Einstein for Service", c:"feature", d:"カスタマーサービス向けの生成AI機能群の総称。Einsteinサービス返信（Knowledge記事や過去のケースを根拠にした返信文の提案）、Einstein作業概要（チャット会話の要約・問題・解決策のドラフト作成）、ケース分類（カテゴリ等の予測）などが含まれる。"},
+{t:"Einstein for Sales", c:"feature", d:"営業向けの生成AI機能群の総称。商談・取引先・リードの要約、営業メールの下書き作成、通話メモの要約、次に取るべきアクションの提案、CRMデータ更新の支援などが含まれる。アカウントプラン（顧客管理の長期戦略）やクローズプラン（取引成立に向けた具体的な手順）の作成支援も行う。"},
+{t:"Einstein Copilot（副操縦士）", c:"copilot", d:"Salesforce CRMに組み込まれた対話型AIアシスタント。ユーザーが自然言語でシステムとやり取りし、タスクの実行や情報取得を支援する。主な目的はワークフローの合理化と反復タスクの自動化であり、データ入力そのものの改善が主目的ではない。"},
+{t:"Einstein会話インサイト", c:"feature", d:"ミーティングの録画・自動文字起こし・自動要約・会話の探索機能などをまとめた、通話/会議データの分析機能。"},
+{t:"Agentforceテストセンター", c:"feature", d:"エージェントが本番投入前に期待どおり安全に動作するかを検証する専用テスト機能。CRMデータへの意図しない変更を防ぐため必ずサンドボックスで実行され、テストの実行自体はEinsteinリクエストを消費しない。構造化バッチテストでは、発話ごとに期待値を定義し、合格/不合格を自動判定できる。"},
+{t:"Agentforceアナリティクス", c:"feature", d:"Data Cloudを使ってエージェントのパフォーマンスに関するインサイトを取得する機能。⚠同僚のメモでは「2026年5月以降に廃止予定でAgent Analyticsへの移行が推奨される」とされているが、この時期・移行方針は変更される可能性があるため、最新情報を公式サイトで確認したほうがよい。"},
+
+{t:"genAiPlannerバンドル", c:"dev", d:"Salesforce CLIでプロンプトテンプレートやエージェントをサンドボックスから本番環境にデプロイする際、エージェントが対話するすべてのトピックとアクションを含めるために package.xml に含める必要があるメタデータの単位。"},
+{t:"モデルコンテキストプロトコル（MCP）", c:"dev", d:"エージェントが実行時にどの外部サービス／APIを使うべきかを判断するために、コンテキスト情報をやり取りして最適な外部サービスを動的に選択するためのプロトコル。複数のバックエンドサービスを状況に応じて動的にルーティングできる。"},
+{t:"エージェントAPI", c:"dev", d:"カスタムのWebアプリケーションがエージェントと通信するためのフレームワーク。「外部Webアプリ×エージェント」という構図で連携したいときに使う。"},
+{t:"外部サービス（External Services）", c:"dev", d:"Apexでコードを書かずに、ポイント＆クリックの設定だけでSalesforce外部のシステムやクラウドサービスのAPIを実行できる機能。郵便番号検索や基幹システムの在庫確認など、外部連携を宣言的に実現する際に使う。"},
+
+{t:"before_reasoningブロック", c:"agent", d:"サブエージェントの会話ロジックの中で、推論（reasoning）が始まる前に実行される設定処理のブロック。複数のサブエージェントに会話を分割している場合、このブロックはサブエージェントへの遷移が起きた「次のターンの開始時」に実行される点に注意が必要。"},
+{t:"リージェンシーランキング（鮮度ランキング）", c:"data", d:"検索結果の並び順を決める際に、意味的な類似度だけでなく「情報の新しさ（更新日時）」も評価要素として加える仕組み。ハイブリッド検索インデックスで、更新されたはずの記事が古い内容に埋もれてしまう問題への対策として使われる。"},
+{t:"AI Models（旧Einstein Studio）", c:"copilot", d:"外部LLMや予測モデルをSalesforceに接続・管理するための機能で、Einstein Studioから名称変更されたもの。カスタムリトリーバーの構成などにも関わる。⚠名称は変更が続く可能性があるため、最新の呼称を公式情報で確認するのがおすすめ。"},
+{t:"UDMO（非構造化データモデルオブジェクト）", c:"data", d:"Data Cloudにおいて、PDFやドキュメントなど非構造化データを表現するためのデータモデルオブジェクトの一種。ContentDocumentVersionのような添付ファイルの実体を扱う際に関わる。"},
+{t:"データストリーム（Data Stream）", c:"data", d:"外部または内部のデータソースからData Cloudにデータを取り込むための経路（パイプライン）のこと。データライブラリ作成時、データストリーム→データレイク→DMOという順で処理が進む。"},
+
+{t:"reasoning.actionsブロック（Agent Script）", c:"agent", d:"エージェントの会話ロジックを記述するAgent Script内で、推論エンジン（LLM）が状況に応じて呼ぶかどうかを判断できる「選択可能なツール」としてアクションを列挙するブロック。ここに書かれたアクションは、必ず実行される保証はない。"},
+{t:"runコマンド（run @actions...）", c:"agent", d:"Agent Script内で、特定のアクションを推論エンジンの判断に関係なく確実に実行させたいときに使う記法。reasoning.actionsが「LLMが選べる候補」なのに対し、runコマンドは「必ず実行する処理」を明示する。"},
+{t:"アクション指示（Action Instructions）", c:"agent", d:"カスタムエージェントアクションにおいて、推論エンジンに「いつ・どのようにこのアクションを使うべきか」を伝える説明文。ここが曖昧だと、正しいトピックが選ばれてもアクションの選択を誤ることがある。"},
+{t:"アクションスコープ（Action Scope）", c:"agent", d:"エージェントアクションに渡す・受け取るデータ（入力・出力）の範囲を定義する設定。アクションの「動作の中身」ではなく、扱うデータの定義に関わる部分。"},
+{t:"構造化バッチテスト", c:"feature", d:"Agentforceテストセンターの機能の一つ。テスト発話ごとに期待される応答をあらかじめ定義し、それに対して自動的に合格/不合格を判定する仕組み。一貫性があり再現性の高いテストが行える。"},
+
+{t:"プロンプトテンプレートのバージョン管理（イミュータブル）", c:"prompt", d:"プロンプトテンプレートのバージョンは、一度アクティブ化されるとロックされ、それ以上その版には変更を保存できなくなる（イミュータブル＝不変）。さらに変更したい場合は新しい下書きバージョンが作られ、元のバージョンは追跡可能な状態のまま保持される。"},
+{t:"エージェント検査（Agent Inspection）", c:"feature", d:"個々のエージェントとのやり取りを、最初のユーザーリクエストから最終的な解決まで、エンドツーエンドで詳細に追跡・確認できる機能。エージェントがどう解釈し、どのアクション経路をたどり、どんな応答を生成したかを見られる。"},
+{t:"エージェント分析（Agent Analytics）", c:"feature", d:"エージェントの応答時間・ユーザー満足度・アクションの呼び出し頻度や成功率などをダッシュボードで確認できる機能。使いやすさやアクションの割り当て状況を監視する用途に向く。"},
+{t:"電子メール構成（Email Configuration）", c:"agent", d:"Agentforceサービスエージェントをメールチャネルで使えるようにするために必要な設定。エージェントとメールアドレス・メールテンプレート・ルーティングのパラメータを紐づける。これを作成しないと、メールテンプレートは自動的にはサービスエージェントに接続されない。"},
+{t:"mutableキーワード（Agent Script変数）", c:"agent", d:"Agent Scriptで変数を宣言する際、その変数を実行時に更新可能にするためのキーワード。付けずに宣言した変数は読み取り専用として扱われ、ユーティリティやアクションから値を更新することができない。"},
+
+{t:"Agentforceオブザーバビリティ", c:"feature", d:"導入済みのエージェントについて、利用状況・効果・フィードバック・パフォーマンスを分析するための考え方・機能群。インテント（意図）やセッションに関する指標は、エージェント全体の運用状況を俯瞰的に把握するために使われる。"},
+{t:"コンテキスト変数", c:"agent", d:"エージェントの会話・処理の中で、状態を保持しておくための変数。Salesforceの項目の値と連動させることで、その値に応じてアクションの実行可否をフィルターで確定的に制御できる。"},
+{t:"利用可能条件フィルター（available when）", c:"agent", d:"特定の条件を満たすまで、あるアクションを推論エンジン（LLM）の選択肢自体から見えなくする（使えなくする）ための設定。機密性の高い操作を、確認が完了するまで確実にブロックしたい場合などに使う。"},
+{t:"エージェント間通信（Agent-to-Agent, A2A）", c:"dev", d:"異なるベンダー・プラットフォームのAIエージェント同士が、安全に通信・連携し、コンテキストを共有しながら作業を調整するためのオープンな標準プロトコル。モデルコンテキストプロトコル（MCP）がエージェントとツールの接続を担うのに対し、A2Aはエージェント同士の連携を担う。"},
+{t:"ラップアップコンポーネント（Wrap Up）", c:"feature", d:"メッセージングセッションなどのレコードページに配置する、対応終了時の後処理（要約の確認・保存など）を行うためのUIコンポーネント。Einstein作業概要などの機能と組み合わせて使われることが多い。"},
+
+{t:"メッセージングセッション（Messaging Session）", c:"reply", d:"顧客とエージェント（人間またはAI）との間で交わされた会話の履歴（トランスクリプト）を保存するオブジェクト。Einstein作業概要などのAI機能はこのオブジェクトのデータをもとに要約を生成する。会話がケースにエスカレーションされた場合は、ケースからこのオブジェクトを参照する形になる。"},
+{t:"外部サービスレコードのマージフィールド", c:"prompt", d:"外部サービス（External Services）を呼び出した結果を表すレコードの中の値を、プロンプトテンプレートにマージフィールドとして差し込む仕組み。REST APIコールアウトの応答データをAIの生成コンテンツに反映させたい場合に使う。"},
+{t:"MCPサーバー対応", c:"dev", d:"自社で構築した複数のAPIを、モデルコンテキストプロトコル（MCP）の規格に沿ったサーバーとして公開すること。これにより、エージェントの推論エンジンが状況に応じて複数のAPIから最適なものを動的に選択・呼び出せるようになる。"},
+];
+
+/* ============================================================
+   用語リンク化：クイズの問題文・解説文の中に用語集の単語が出てきたら
+   タップで用語集へジャンプできるようにする
+============================================================ */
+const NAME_TO_IDX = {};
+const ALL_TERM_NAMES = [];
+TERMS.forEach((term, idx)=>{
+  const aliases = term.t.split(/\s*\/\s*/).map(s=>s.replace(/[（(].*?[）)]/g,'').trim()).filter(a=>a.length>=3);
+  aliases.forEach(a=>{
+    if(!(a in NAME_TO_IDX)){
+      NAME_TO_IDX[a] = idx;
+      ALL_TERM_NAMES.push(a);
+    }
+  });
+});
+ALL_TERM_NAMES.sort((a,b)=>b.length-a.length);
+const ESCAPED_NAMES = ALL_TERM_NAMES.map(n=>n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));
+const TERM_REGEX = ESCAPED_NAMES.length ? new RegExp('('+ESCAPED_NAMES.join('|')+')','g') : null;
+
+function linkifyTerms(text){
+  if(!text || !TERM_REGEX) return text;
+  return text.replace(TERM_REGEX, (m)=>`<span class="term-link" data-term="${encodeURIComponent(m)}">${m}</span>`);
+}
+
+function jumpToGlossaryTerm(idx){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelector('.tab-btn[data-tab="glossary"]').classList.add('active');
+  document.getElementById('view-glossary').classList.add('active');
+
+  activeCat = 'all';
+  searchTerm = '';
+  document.getElementById('searchInput').value = '';
+  renderChips();
+  renderTerms();
+
+  setTimeout(()=>{
+    const card = document.querySelector(`.term-card[data-idx="${idx}"]`);
+    if(card){
+      card.classList.add('open');
+      card.classList.add('just-jumped');
+      card.scrollIntoView({behavior:'smooth', block:'start'});
+      setTimeout(()=>card.classList.remove('just-jumped'), 700);
+    }
+  }, 50);
+
+  document.getElementById('backToQuizBtn').style.display = 'inline-flex';
+}
+
+document.getElementById('view-quiz').addEventListener('click', (e)=>{
+  const el = e.target.closest('.term-link');
+  if(!el) return;
+  const termText = decodeURIComponent(el.dataset.term);
+  const idx = NAME_TO_IDX[termText];
+  if(idx !== undefined) jumpToGlossaryTerm(idx);
+});
+
+document.getElementById('backToQuizBtn').addEventListener('click', ()=>{
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelector('.tab-btn[data-tab="quiz"]').classList.add('active');
+  document.getElementById('view-quiz').classList.add('active');
+  document.getElementById('backToQuizBtn').style.display = 'none';
+});
+
+/* ============================================================
+   状態管理
+============================================================ */
+let activeCat = "all";
+let searchTerm = "";
+let quizData = [];       // 保存済みの問題
+let previewData = null;  // プレビュー中の問題（未保存）
+let runtimeState = null; // クイズ実行中の状態
+
+/* ---------- Tabs ---------- */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('view-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ---------- Glossary rendering ---------- */
+function renderChips(){
+  const row = document.getElementById('chipRow');
+  const cats = ["all", ...Object.keys(CATS)];
+  row.innerHTML = cats.map(c=>{
+    const label = c==="all" ? "すべて" : CATS[c];
+    return `<div class="chip ${c===activeCat?'active':''}" data-cat="${c}">${label}</div>`;
+  }).join('');
+  row.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      activeCat = chip.dataset.cat;
+      renderChips();
+      renderTerms();
+    });
+  });
+}
+
+function renderTerms(){
+  const list = document.getElementById('termList');
+  const countLine = document.getElementById('countLine');
+  const filtered = TERMS.filter(term=>{
+    const matchCat = activeCat==="all" || term.c===activeCat;
+    const matchSearch = searchTerm==="" || term.t.toLowerCase().includes(searchTerm) || term.d.toLowerCase().includes(searchTerm);
+    return matchCat && matchSearch;
+  });
+
+  countLine.textContent = `${filtered.length}件の用語 · タップして解説を表示`;
+
+  if(filtered.length===0){
+    list.innerHTML = `<div class="empty-msg">🔍 見つかりませんでした。検索語やカテゴリを変えてみてください。</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map((term, i)=>{
+    const hasFlag = term.d.includes("⚠");
+    const cleanD = term.d.replace("⚠","");
+    return `
+    <div class="term-card" data-idx="${TERMS.indexOf(term)}">
+      <div class="term-head">
+        <div class="term-name">${term.t}</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="term-cat-tag">${CATS[term.c]}</span>
+          <span class="term-arrow">▼</span>
+        </div>
+      </div>
+      <div class="term-body">
+        <div class="term-body-inner">
+          ${cleanD}
+          ${hasFlag ? '<div class="note-flag">⚠ 断定できない・要確認の情報を含みます</div>' : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.term-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      card.classList.toggle('open');
+    });
+  });
+}
+
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+  searchTerm = e.target.value.trim().toLowerCase();
+  renderTerms();
+});
+
+renderChips();
+renderTerms();
+
+/* ============================================================
+   クイズ機能
+============================================================ */
+const SAMPLE_TEXT = `Q: Prompt BuilderでFlexテンプレートの特徴として正しいものはどれですか？
+A) 入力（リソース）はあらかじめ固定されている
+B) 入力（リソース）を作成時に自分で定義できる
+C) レコードの項目にしか使えない
+D) セールスメールにしか使えない
+正解: B
+解説: Flexテンプレートは他のテンプレート種類でカバーできない用途向けに、自分でリソースを定義できるのが特徴です。
+
+---
+
+Q: データマスキングの目的として最も適切なものはどれですか？
+A) 応答速度を上げるため
+B) 機微情報をLLMに渡す前に隠すため
+C) トークン数を減らすため
+D) 多言語対応のため
+正解: B
+解説: データマスキングは氏名や住所などの機微情報をプレースホルダーに置き換えてから外部LLMに送るための仕組みです。`;
+
+document.getElementById('btnSample').addEventListener('click', ()=>{
+  document.getElementById('quizInput').value = SAMPLE_TEXT;
+});
+
+/* 同僚のメモの内容をもとに作成した4択問題（事実は同僚メモ準拠、選択肢の文言はこちらで作成） */
+const COLLEAGUE_TEXT = `Q: Agentforceの推論エンジンがトピックを選択した後、どのアクションを実行するかを決める際に使う重要な要素は何ですか？
+A) ユーザーの過去のログイン履歴
+B) 各アクションに設定された優先度
+C) Salesforceの組織のライセンス種別
+D) レコードの作成日時
+正解: B
+解説: トピックを選択した後、推論エンジンは各アクションに与えられた優先度をもとに、実行するアクションを判断します。
+
+---
+
+Q: Data CloudでPDFなどの長文から、意味の近い情報を検索したい場合に最も適した検索方式はどれですか？
+A) キーワード検索
+B) ベクトル検索（セマンティック検索）
+C) 完全一致検索
+D) 正規表現検索
+正解: B
+解説: ベクトル検索は意味的な類似性に基づく検索方式で、表記ゆれや同義語、言い換えに強く、自然言語の長文クエリに向いています。
+
+---
+
+Q: ユーザーから「エージェントの回答が不満足」という苦情があり、エージェントがPDFを知識ソースとして使っている場合、まず確認すべきことは何ですか？
+A) ユーザーのブラウザのキャッシュ
+B) リトリーバーのフィルター条件とデータソース接続
+C) Salesforceの組織の言語設定
+D) エージェントのアイコン画像
+正解: B
+解説: PDFを知識ソースにしている場合、回答が不満足になる主な原因はリトリーバーのフィルター設定やデータソース接続の問題であることが多く、まずこれらを確認するのがトラブルシューティングの基本です。
+
+---
+
+Q: 個人を特定できる情報（PII）を含む可能性のあるデータに対してRAGを設計する際のベストプラクティスはどれですか？
+A) すべてのデータをそのままインデックスする
+B) 機密フィールドをマスクし、PII以外のデータのみをインデックスする
+C) PIIを含むデータだけを優先的にインデックスする
+D) インデックス化を行わずキーワード検索のみ使う
+正解: B
+解説: 機密フィールドをマスクし、PII以外のデータのみをインデックス対象にすることで、プライバシーを保ちながら検索拡張生成を安全に活用できます。
+
+---
+
+Q: 項目生成プロンプトテンプレートを作成しようとしたところ、フィールドを生成AI用に有効化できませんでした。まず確認すべき組織設定は何ですか？
+A) 組織のタイムゾーン設定
+B) 組織のAPIバージョンが59以上かどうか
+C) 組織の通貨設定
+D) 組織のドメイン名
+正解: B
+解説: 項目生成プロンプトテンプレートを作成するには、組織のAPIバージョンが59以上である必要があります。
+
+---
+
+Q: 項目生成プロンプトテンプレートで、特定のレコードだけトークン制限エラーがランダムに発生する主な原因は何ですか？
+A) LLMのモデルが古いため
+B) レコードごとに差し込まれる内容量が異なり、生成トークン数が変動するため
+C) ユーザーの権限が不足しているため
+D) ネットワーク回線が遅いため
+正解: B
+解説: 項目生成プロンプトはレコードの内容を動的に差し込むため、レコードごとの入力量・生成トークン数が変動し、一部のレコードだけ上限を超えて失敗することがあります。
+
+---
+
+Q: Einstein Trust Layerの毒性スコアリングにおいて、スコア「1」は何を意味しますか？
+A) 最も有害なコンテンツ
+B) 毒性なし（安全なコンテンツ）
+C) スコア計算エラー
+D) マスキング未実施
+正解: B
+解説: 毒性スコアは0〜1の範囲で、0が最も有害、1が毒性なし（安全）を示します。
+
+---
+
+Q: マスクされたデータは、LLMとのやり取りのどのタイミングでマスク解除（デマスキング）されますか？
+A) プロンプトを送信する前
+B) LLMからの応答を受け取った後
+C) データをData Cloudに保存する前
+D) ユーザーがログインした直後
+正解: B
+解説: マスキング解除はLLMからの応答を受け取った後に行われます。リクエスト段階でマスク解除すると機密データがLLMに送信されてしまい、保護の目的を果たせません。
+
+---
+
+Q: Agentforceデータライブラリで新しいライブラリを作成したところ、ファイルアップロードのオプションしか表示されず、Salesforce Knowledgeベースを選択できませんでした。最も可能性の高い原因はどれですか？
+A) Data Cloudが有効化されていない
+B) Salesforceナレッジが組織で有効になっていない
+C) ユーザーのブラウザが古い
+D) 組織の言語設定が日本語になっていない
+正解: B
+解説: Salesforceナレッジが有効になっていないと、ナレッジベースをデータソースとして選ぶオプションがEinstein（Agentforce）データライブラリに表示されません。
+
+---
+
+Q: プロンプトテンプレートを新規作成するために必要な権限の組み合わせとして正しいものはどれですか？
+A) システム管理者権限のみ
+B) データクラウド管理者とプロンプトテンプレートマネージャーの両方
+C) プロンプトテンプレートユーザーのみ
+D) Knowledgeユーザーのみ
+正解: B
+解説: プロンプトテンプレートを作成する権限には「データクラウド管理者」と「プロンプトテンプレートマネージャー」の両方が必要です。実行のみでよい場合は「プロンプトテンプレートユーザー」で十分です。
+
+---
+
+Q: サンドボックスから本番環境にプロンプトテンプレートやエージェントをSalesforce CLIでデプロイする際、package.xmlに含める必要があるバンドルはどれですか？
+A) genAiPlannerバンドル
+B) staticResourceバンドル
+C) permissionSetバンドルのみ
+D) reportバンドル
+正解: A
+解説: エージェントが対話するすべてのトピックとアクションを含めるために、genAiPlannerバンドルをpackage.xmlに含める必要があります。
+
+---
+
+Q: エージェントに特定の順序でアクションを確実に実行させたい場合、推奨される実装方法はどれですか？
+A) LLMの解釈だけに任せる
+B) カスタム変数と条件付きフィルターで各ステップの完了を管理する
+C) すべてのアクションを1つのアクションにまとめる
+D) アクションの説明文を長くする
+正解: B
+解説: 各ステップの完了状態をカスタム変数で保存し、前のステップが完了している場合のみ後続アクションを実行するよう条件付きフィルターで制御することで、LLMの解釈に依存せず正確な順序を保証できます。`;
+
+/* Prompt Builderのテンプレート選択ロジックを問う、オリジナルのシナリオ問題セット */
+const TEMPLATE_LOGIC_TEXT = `Q: Universal Containers社は、取引先（Account）の「概要」フィールドに、AIが生成したテキストを自動的に反映させたいと考えています。この用途に最も適したプロンプトテンプレートの種類はどれですか？
+A) Flexテンプレート
+B) セールスメールプロンプトテンプレート
+C) 項目生成（Field Generation）プロンプトテンプレート
+D) レコードの概要プロンプトテンプレート
+正解: C
+解説: 単一のレコードの、特定の1つの項目（フィールド）に直接AI生成テキストを差し込みたい場合は、項目生成プロンプトテンプレートが最も適しています。レコードの概要テンプレートは項目ではなく「要約文」を作る用途向けです。
+
+---
+
+Q: Universal Containers社の営業チームは、商談ごとに顧客・製品・キャンペーン情報を踏まえたパーソナライズ営業メールを自動生成したいと考えています。どのプロンプトテンプレートを使うべきですか？
+A) 項目生成プロンプトテンプレート
+B) セールスメールプロンプトテンプレート
+C) レコードの概要プロンプトテンプレート
+D) Flexテンプレート
+正解: B
+解説: 顧客・商品・イベントなどのレコードデータに基づいたメール文面の生成は、セールスメールプロンプトテンプレートの典型的なユースケースです。ただし「Einstein for Sales」の有効化が前提条件になります。
+
+---
+
+Q: Universal Containers社は、サポート担当者がケースの詳細画面を開いたときに、そのケースのやり取り全体を要約したリッチテキストをすぐに確認できるようにしたいと考えています。どのプロンプトテンプレートが最も適していますか？
+A) セールスメールプロンプトテンプレート
+B) 項目生成プロンプトテンプレート
+C) レコードの概要プロンプトテンプレート
+D) Flexテンプレート
+正解: C
+解説: レコード全体の情報をもとにリッチテキストの要約を作る、というのはレコードの概要（Record Summary）プロンプトテンプレートの代表的な用途です。特定の1項目に書き込むわけではない点が項目生成との違いです。
+
+---
+
+Q: Universal Containers社は、取引先・商談・関連する外部システムの在庫情報という3つの異なるオブジェクトのデータを1つのプロンプトに組み合わせて、独自の提案文を生成したいと考えています。標準の3種類のテンプレートでは要件を満たせません。どうすべきですか？
+A) レコードの概要プロンプトテンプレートを複数作成して結合する
+B) Flexテンプレートを作成し、必要なリソースを自分で定義する
+C) セールスメールプロンプトテンプレートのリソースを追加する
+D) 項目生成プロンプトテンプレートで複数フィールドを指定する
+正解: B
+解説: 他のテンプレート種類でカバーできない独自の組み合わせが必要な場合はFlexテンプレートを使います。Flexは入力（リソース）を自分で定義でき、複数の無関係なオブジェクトのデータを1つのテンプレートにまとめられます。
+
+---
+
+Q: Universal Containers社の管理者が、初めてセールスメールプロンプトテンプレートを営業チームに使わせようとしたところ、テンプレートの選択肢自体が表示されませんでした。考えられる原因として最も可能性が高いものはどれですか？
+A) 組織のAPIバージョンが古い
+B) 「Einstein for Sales」が有効化されていない、または関連の権限セットが割り当てられていない
+C) 取引先オブジェクトの項目が不足している
+D) Data Cloudが有効化されていない
+正解: B
+解説: セールスメールプロンプトテンプレートは「Einstein for Sales」の有効化と、関連する権限セット（Einstein Sales Emailsなど）の割り当てが前提条件です。これが揃っていないとテンプレート自体が使えません。`;
+
+/* 論点まとめ問題セット① : 見せてもらった画像の「論点・正解」だけを踏まえ、質問文・選択肢・解説はすべてオリジナルで書き直したもの */
+const ROUNDUP1_TEXT = `Q: Agentforceのエージェントにおいて、プランナー（推論エンジン）の主な役割として最も適切なものはどれですか？
+A) ユーザーの発話をリアルタイムで多言語に翻訳する
+B) 会話履歴に基づいてレコードを更新するバッチ処理を実行する
+C) ユーザーの発話に応じて、実行すべきトピック・アクションを特定する
+D) ナレッジ記事の全文を自動で書き換える
+正解: C
+解説: プランナー（推論エンジン）はユーザーの発話を解釈し、どのトピック・アクションで応答すべきかを特定・計画する役割を担います。翻訳やレコード更新そのものは他の仕組み（翻訳機能やアクション）の役割です。
+
+---
+
+Q: Data Cloudのハイブリッド検索を使うエージェントが、新しいバージョンのナレッジ記事があるにもかかわらず、古い記事を頻繁に返してしまいます。すべての記事は正しくチャンク化・インデックス化されています。この問題への対処として最も適切な検索インデックスの構成変更はどれですか？
+A) LastModifiedDateなど更新日時のフィールドをもとにした、鮮度（リージェンシー）ランキング要素を追加する
+B) キーワードインデックスを無効化し、ベクトルインデックスのみに頼る
+C) チャンク化の方式をセクション対応から固定サイズに切り替える
+D) 検索インデックス自体を削除して作り直す
+正解: A
+解説: 意味的な類似度だけでは新旧のバージョンを区別できないため、更新日時に基づく鮮度ランキング要素を検索結果の評価基準に加えることで、最新の記事が優先的に返されるようになります。
+
+---
+
+Q: Data Cloudで新しいカスタム検索インデックスを作成すると、自動的に何が作成されますか？
+A) 実行時に自由にパラメータを選べる、汎用の動的リトリーバー
+B) 作成した検索インデックスと同じ名前を持つ、デフォルトのリトリーバー
+C) 開発者がゼロから編集できる、空のApexリトリーバークラス
+D) 何も自動作成されず、リトリーバーは別途手動で作る必要がある
+正解: B
+解説: カスタム検索インデックスを作成すると、そのインデックスと同名のデフォルトリトリーバーが自動的に作成されます。より細かい制御が必要な場合は、別途個別のリトリーバーを作成してフィルターなどをカスタマイズします。
+
+---
+
+Q: 返品処理の前に、注文検証の手順を厳密に守らせつつ、顧客との自然な会話の流れも維持したいという要件があります。Agentforceスペシャリストが取るべき対応として最も適切なものはどれですか？
+A) エージェントの指示（会話の進め方に関するガイド）の中に、注文検証のステップを明示的な手順として組み込む
+B) カスタムApexの呼び出し可能メソッドを作成し、返品処理全体をApex側で代替する
+C) Flowを作成し、LLMに検証と返品処理のすべてを任せるようガイドする
+D) 検証ステップを省略し、事後チェックのみ行う
+正解: A
+解説: 「手順は厳密に守らせたいが、会話としての自然さも保ちたい」という要件には、エージェントの指示の中に明示的な手順（ガードレール的な指示）として組み込むアプローチが適しています。処理全体をApexやFlowに丸投げすると、柔軟な会話体験が損なわれます。
+
+---
+
+Q: Experience Cloud上のパートナーポータルで、認証済みのパートナーユーザー向けに、ナレッジ記事をもとにした質問対応と、新規リードの送信ができるエージェントを用意したいと考えています。どの種類のエージェントが適していますか？
+A) 商取引（コマース）エージェント
+B) 営業担当者向けのセールスコーチエージェント
+C) サービスエージェント
+D) 従業員エージェント
+正解: C
+解説: サービスエージェントはExperience Cloudに安全に公開でき、認証済みの外部ユーザー（パートナーや顧客）への対応や、アクションとしてのリード作成・送信もサポートしています。
+
+---
+
+Q: 標準の基盤モデルを使うプロンプトテンプレートを設計する際、LLMに追加の文脈を与えて回答の質を上げるための工夫として適切なものはどれですか？
+A) 絵文字や句読点の使い方を変えたデータでLLM自体を再学習させる
+B) プロンプトの中にLLMの理解度をテストするための複数選択式クイズを埋め込む
+C) プロンプトテンプレートの中で、LLMに特定の役割（キャラクター）としてロールプレイするよう依頼し、文脈を補強する
+D) プロンプトの文字数をできるだけ短くする
+正解: C
+解説: LLMに「あなたは〇〇の専門家です」のような役割を与えることで、その役割に沿った文脈理解をさせやすくなり、回答の質が上がります。LLM自体の再学習はPrompt Builderの範囲外です。
+
+---
+
+Q: メッセージングチャネルのオムニチャネルルーティングにおいて、割り当て先として有効なものはどれですか？
+A) Agentforceサービスエージェント
+B) Agentforce従業員エージェント
+C) 自動起動フロー
+D) レポートのサブスクリプション
+正解: A
+解説: メッセージングチャネルのオムニチャネルルーティングでは、Agentforceサービスエージェントを割り当て先として設定できます。従業員エージェントや自動起動フローはこの用途の割り当て先ではありません。
+
+---
+
+Q: 複数ステップの会話ロジックを2つのサブエージェントに分割したところ、2番目のサブエージェントへの切り替え直後に会話が不安定になる問題が発生しました。サブエージェントのbefore_reasoningブロックの実行タイミングについて、考慮すべきリスクはどれですか？
+A) before_reasoningブロックは、サブエージェントへの遷移後、次のターンの開始時に実行される
+B) before_reasoningブロックは会話全体で一度だけ実行され、それ以降は不変の変数として扱われる
+C) before_reasoningブロックはエージェントが起動した直後の最初のターンでしか実行されない
+D) before_reasoningブロックは常にリアルタイムで即座に実行される
+正解: A
+解説: before_reasoningブロックはサブエージェントへの遷移が発生した「次のターンの開始時」に実行されるため、遷移直後の会話設計では実行タイミングのズレを考慮した設計が必要です。
+
+---
+
+Q: 社内のデータサイエンスチームが、AWSなど外部の環境で生成AIの大規模言語モデルをホストしています。Salesforceプラットフォームからこの外部ホストのモデルにアクセスできるようにするには、何を使ってモデルを接続しますか？
+A) アプリビルダー（Lightning App Builder）
+B) コパイロットビルダー
+C) モデルビルダー（Einstein Studio Model Builder）
+D) プロンプトビルダー
+正解: C
+解説: 外部でホストされているLLMをSalesforceに統合し、営業やサービス業務で使えるようにするには、モデルビルダー（Einstein Studio Model Builder）を使ってモデルを接続します。
+
+---
+
+Q: カスタムのApexアクションが、テキスト値のコレクション（リスト）を入力パラメータとして受け取るように構成したいと考えています。Agentforceの推論エンジンが文字列のリストを正しく渡せるようにするには、この入力にどの複合データ型（complex_data_type_name）を指定すべきですか？
+A) apex__String
+B) lightning__stringType
+C) lightning__textType
+D) apex__Collection
+正解: B
+解説: 文字列のコレクション型の入力パラメータには lightning__stringType を指定します。単一の文字列（Stringそのもの）と、文字列のコレクションとでは指定すべき型が異なる点に注意が必要です。
+
+---
+
+Q: コンタクトセンターで、明確に請求（billing）に関する問い合わせが、一般的なトラブルシューティング担当のサブエージェントに誤って振り分けられてしまい、平均処理時間が悪化しています。迅速に導入でき、かつエージェントの柔軟な会話対応力も維持したまま修正したい場合、最も適切なアプローチはどれですか？
+A) 各サブエージェントのグローバルな指示に、禁止キーワードのリストを追加する
+B) サブエージェント同士の指示（説明）に意味的な重複がないか見直し、プランナーの判断を助ける決定論的なフィルターを追加する
+C) Decision要素を使い、すべてのリクエストを手動で特定のサブエージェントに振り分けるRouterサブフローを作成する
+D) 問い合わせ内容にかかわらず、常に同じサブエージェントに固定する
+正解: B
+解説: サブエージェントの誤振り分けは、多くの場合サブエージェント同士の役割説明が意味的に重複していることが原因です。禁止キーワードのリストや完全な手動振り分けは柔軟性を損なうため、指示内容の見直しと決定論的フィルターの追加が望ましい対応です。
+
+---
+
+Q: 営業担当者が、過去にうまくいった顧客とのやり取りを踏まえて、パーソナライズされたフォローアップメールを作成する時間を減らしたいと考えています。この目的に役立つ標準のエージェントアクションはどれですか？
+A) レコードの要約
+B) 類似の商談を見つける
+C) 営業メールの下書きまたは修正
+D) ケースの分類
+正解: C
+解説: 「営業メールの下書きまたは修正」アクションは、過去の成功したやり取りなどの情報をもとに、パーソナライズされたメール文面を生成する標準アクションです。レコードの要約や類似商談の検索は、メール文面そのものを生成する機能ではありません。
+
+---
+
+Q: Agentforceサービスエージェントに、社内ナレッジだけでなく最新のWeb情報も検索して回答してほしいという要件があります。Agentforceスペシャリストが行うべき設定はどれですか？
+A) 一般FAQサブエージェントに、ナレッジ回答用の標準アクションをそのまま追加する
+B) エージェントを有効化する前に、Web検索用のリトリーバーをカスタム検索インデックスへ手動でマッピングする
+C) デフォルトの一般FAQサブエージェントを削除し、新しい「一般Web検索」サブエージェントに置き換える
+D) 既存のサブエージェントの指示文にWebサイトのURLを列挙する
+正解: C
+解説: 「ナレッジで質問に回答する」アクションは1つのサブエージェントにしか使えない仕様のため、Web検索を有効にするには、デフォルトの一般FAQサブエージェントを削除し、Web検索向けの新しいサブエージェントに置き換える必要があります。
+
+---
+
+Q: 契約書のすべての過去バージョンを検索可能な状態で保持する必要がある一方、各顧客のAI応答には「その顧客が署名した契約バージョン」だけを正確に参照させたいという要件があります。最も適切な対応はどれですか？
+A) カスタムリトリーバーを構成し、顧客の契約レコードから実行時に取得したバージョン情報をもとに、意味的な類似度ランキングを適用する前の段階で対象文書を決定論的に絞り込む動的フィルターを設定する
+B) 検索インデックスの各チャンクにバージョン識別子をタグとして付与し、LLMが応答生成時に正しいバージョンを自分で判断できるようにする
+C) バージョンごとに完全に別々のデータストリームを作成し、各バージョンのベクトルを他のバージョンから完全に分離する
+D) 古いバージョンの契約書はすべて検索インデックスから除外する
+正解: A
+解説: 過去バージョンを削除できない（法務要件で保持が必要）という前提がある以上、削除ではなく「取得の絞り込み」で対応します。顧客の契約レコードに基づく動的フィルターで、意味的ランキングの前に候補文書を確定させることで、誤ったバージョンをLLMに渡すリスクを減らせます。`;
+
+/* 論点まとめ問題セット② : 質問16〜20の論点・正解のみを踏まえ、質問文・選択肢・解説はオリジナルで書き直したもの */
+const ROUNDUP2_TEXT = `Q: Universal Containers社は、SDR（Sales Development Representative）エージェントを導入しようとしています。チャネルに関して考慮すべき点として正しいものはどれですか？
+A) SDRエージェントはメッセージングチャネルに展開する必要がある
+B) SDRエージェントはメールチャネルでのみ動作する
+C) SDRエージェントは自社Webサイトへの展開が必須である
+D) SDRエージェントはSlackチャネル専用の機能である
+正解: A
+解説: SDRエージェントはリードとのリアルタイムなやり取りを主目的としており、メッセージングチャネルへの展開が前提になります。メールでのフォローアップは可能ですが、メール専用というわけではなく、Webサイトへの組み込みは実装上の選択肢であって必須要件ではありません。
+
+---
+
+Q: 注文キャンセルを処理するAgentforceサービスエージェントで、重要な「キャンセル資格の確認」アクションを、推論エンジンの判断に委ねず、関連するすべてのターンで必ず実行させたいと考えています。この要件を満たす実装方針として正しいものはどれですか？
+A) reasoning.actionsブロックとrunコマンドは書き方が違うだけで、どちらも毎ターン自動的にアクションを実行する
+B) runコマンドは、reasoning.actionsブロックの中にネストして記述した場合のみ有効になる
+C) reasoning.actionsの下にリストしたアクションはLLMが呼ぶかどうかを判断する選択式のツールになるが、runコマンドで呼び出したアクションは毎回確実に実行される
+D) runコマンドは非推奨の古い記法であり、reasoning.actionsに統一すべきである
+正解: C
+解説: reasoning.actionsブロックに列挙したアクションは、推論エンジン（LLM）がその時の文脈に応じて呼ぶかどうかを判断する「選択可能なツール」として扱われます。一方、runコマンドで明示的に呼び出したアクションはLLMの裁量に関係なく確実に実行されるため、必須の確認ステップのように「毎回絶対に実行したい処理」に向いています。
+
+---
+
+Q: あるユーザーが、エージェントに過去7日間のアクティビティを削除するよう依頼しましたが、実行されませんでした。最も可能性の高い原因はどれですか？
+A) レコード削除アクションの権限がユーザーに関連付けられていない
+B) エージェントにはそのユーザーのレコードを削除する権限がない
+C) エージェントはそもそもレコードの削除アクションをサポートしていない
+D) アクティビティオブジェクトへのアクセス権限が不足している
+正解: C
+解説: 標準のAgentforceエージェントはデータの取得・作成・更新には対応していますが、レコードの削除アクションはサポートしていません。そのため権限の有無にかかわらず、削除の依頼自体を実行できません。
+
+---
+
+Q: カスタムのエージェントアクションを作成したところ、トピックは正しく選ばれるものの、アクションが期待どおりに選択されません。この問題を解決するために、Agentforceスペシャリストがテスト・改善を繰り返すべき設定はどれですか？
+A) アクションスコープ
+B) アクション指示（Action Instructions）
+C) 分類の説明（Classification Description）
+D) 入力パラメータのデータ型
+正解: B
+解説: アクション指示は、推論エンジンに対して「いつ・どのようにそのアクションを使うべきか」を伝える説明文です。ここが曖昧だと、正しいトピックが選ばれてもアクションの選択を誤ることがあるため、まず見直すべき設定です。アクションスコープは入出力の定義、分類の説明はトピックレベルの意図判定に関するものです。
+
+---
+
+Q: Coral Cloud Resorts社は、エージェントのテストにおいて一貫した合格/不合格判定のロジックを求めています。Agentforceテストセンターのどの機能がこれを提供しますか？
+A) 顧客満足度の評価を、正確さの代わりの指標として使う
+B) イベントログに対してスクリプトを実行し、失敗した発話を手動で洗い出す
+C) テスト発話ごとに期待値を定義して自動検証する構造化バッチテスト
+D) 本番環境でのA/Bテスト
+正解: C
+解説: 構造化バッチテストでは、発話ごとに期待される応答をあらかじめ定義し、それに対して自動的に合格/不合格を判定できるため、一貫性があり再現性の高いテストロジックを実現できます。`;
+
+/* 論点まとめ問題セット③ : 質問21〜30の論点・正解のみを踏まえ、質問文・選択肢・解説はオリジナルで書き直したもの */
+const ROUNDUP3_TEXT = `Q: プロンプトテンプレートのバージョンが「不変（イミュータブル）」と記載されている場合、それはどういう意味ですか？
+A) そのバージョンをアクティブ化すると、それ以降そのバージョンには変更を保存できなくなる
+B) テンプレートの最新バージョンしかアクティブ化できない
+C) テンプレートへの変更はすべて自動的に新しいバージョンとして保存される
+D) 不変バージョンは削除だけができなくなるという意味である
+正解: A
+解説: プロンプトテンプレートのバージョンは、一度アクティブ化されるとロックされ、それ以上その版に変更を保存できなくなります。さらに変更したい場合は新しい下書きバージョンが作られ、元のバージョンは追跡可能な状態のまま保持されます。
+
+---
+
+Q: Einstein Work Summariesは、会話の要約に加えて、どのような追加情報を生成・入力しますか？
+A) 感情分析と感情の検出
+B) アンケート依頼メールの下書き
+C) 問題（Issue）と解決（Resolution）
+D) 次に取るべきアクションの提案
+正解: C
+解説: Einstein Work Summariesは要約に加えて「問題（Issue）」と「解決（Resolution）」というフィールドを自動生成します。感情分析はEinstein会話インサイトの役割であり、Work Summariesとは別の機能です。
+
+---
+
+Q: 顧客とエージェントとのやり取りを、最初のリクエストから最終的な解決までエンドツーエンドで詳細に確認・分析したい場合、どのAgentforce機能を使うべきですか？
+A) エージェント検査（Agent Inspection）
+B) エージェントの洞察（Agent Insights）
+C) エージェント最適化（Agent Optimization）
+D) エージェント分析（Agent Analytics）
+正解: A
+解説: エージェント検査は、個々のやり取りを最初から最後まで詳細に追跡できる機能で、エージェントがどう解釈し、どのアクション経路をたどり、どんな応答を生成したかを確認できます。洞察は集計された分析、最適化は改善提案に重点があります。
+
+---
+
+Q: AIエージェントの応答速度を上げるため、グラウンディング時のリトリーバーの遅延を最小限に抑えたいと考えています。優先すべき構成はどれですか？
+A) 実行時にインデックス構造自体を変更できるよう、リトリーバーを動的モードで動かす
+B) 各検索の範囲を効率的に絞り込めるよう、リトリーバーのフィルターを適切に定義する
+C) リトリーバーの鮮度バイアス設定を強め、対象を直近のデータだけに絞る
+D) リトリーバーの取得件数の上限をなくす
+正解: B
+解説: 検索範囲を適切なフィルターで絞り込むことが、遅延を減らす最も効果的な方法です。実行時にインデックス構造を変更するのはむしろ遅延を増やす原因になり、鮮度バイアスだけでは速度改善に直結しません。
+
+---
+
+Q: Einstein Trust Layerのデータマスキング設定で、Agentforceスペシャリストが設定できるものはどれですか？
+A) マスクを免除するプロファイル
+B) マスキング用の暗号化キー
+C) マスク対象とするプライバシーデータのエンティティ（項目）
+D) マスキングを実行するタイミングのスケジュール
+正解: C
+解説: データマスキングの設定では、氏名やメールアドレスなど「どの項目（エンティティ）をマスク対象にするか」を定義します。暗号化キーの管理やプロファイル単位の免除は、この設定の範囲外です。
+
+---
+
+Q: Universal Containers社は、メールチャネル向けにAgentforceサービスエージェントを実装し、メールテンプレートを作成しました。このテンプレートをサービスエージェントに接続するために推奨される対応はどれですか？
+A) サービスエージェントの電子メール構成（Email Configuration）を作成する
+B) メールテンプレートを指すオムニチャネルフローを作成する
+C) 特に対応は不要で、サービスエージェントが自動的にテンプレートへ接続する
+D) メールテンプレートをKnowledge記事として登録する
+正解: A
+解説: メールチャネルでサービスエージェントを使うには、エージェントとメールアドレス・テンプレート・ルーティングを紐づける「電子メール構成」を作成する必要があります。自動的には接続されず、オムニチャネルフローの作成は主にライブメッセージ／チャットのルーティング向けの仕組みです。
+
+---
+
+Q: 「ニューヨークの顧客をすべて表示して」というユーザーの発話に対して、プランナーサービスが使用する標準アクションはどれですか？
+A) レコードのクエリ（Query Records）
+B) レコードの取得（Fetch Records）
+C) レコードを選択（Select Records）
+D) レコードの要約
+正解: A
+解説: 特定の条件（都市名など）に合致するレコードを検索・取得するのは「レコードのクエリ」アクションの役割です。「レコードを選択」は、すでに提示された候補の中からユーザーが選ぶ場合に使われるアクションです。
+
+---
+
+Q: パイロットプログラムで導入したAgentforceエージェントについて、使いやすさとアクションの割り当て状況を監視したい場合、どの方法が適切ですか？
+A) プラットフォームのデバッグログに関するレポートを実行する
+B) メタデータAPIを使ってエージェントのログデータを照会する
+C) エージェント分析（Agent Analytics）を実行する
+D) Apexトリガーを組んでログを独自に収集する
+正解: C
+解説: エージェント分析は、応答時間・ユーザー満足度・アクションの呼び出し頻度や成功率などをダッシュボードで確認できる、この用途に特化した標準機能です。デバッグログの確認やメタデータAPIの利用は、この目的には適していません。
+
+---
+
+Q: UCでは、営業担当者とサービス担当者がそれぞれ生成AIへのプロンプトを毎回手入力しており、時間がかかるうえにプロンプトの一貫性も保てないという課題を抱えています。この課題を解決するために使うべきSalesforce機能はどれですか？
+A) Agent Builderと「レコードのクエリ」アクション
+B) Einstein Prompt Builderとプロンプトテンプレート
+C) Einstein Recommendation Builder
+D) Model Playground
+正解: B
+解説: Prompt Builderであらかじめプロンプトテンプレートを作成しておけば、担当者が毎回同じような内容を入力する手間が省け、チーム全体でプロンプトの一貫性を保てます。Recommendation Builderは予測AIによるレコメンド生成が目的で、自由入力プロンプトのテンプレート化には使いません。
+
+---
+
+Q: Agentforceサービスエージェントのスクリプトで、mutableキーワードを付けずに文字列型の変数を宣言しました。実行中に専用のユーティリティでこの変数を更新しようとすると、どうなりますか？
+A) mutableキーワードは省略可能であり、変数はデフォルトで変更可能なため正常に更新できる
+B) 宣言に構文エラーがあり、エージェントのデプロイ自体が失敗する
+C) この変数は読み取り専用として扱われ、実行時に値を更新することはできない
+D) 変数は自動的にmutableとして扱われ、警告だけが表示される
+正解: C
+解説: Agent Scriptの変数は、明示的にmutableキーワードを付けて宣言しない限り読み取り専用として扱われます。そのため、ユーザーから聞き出した情報のように実行時に変化する値を保存したい場合は、mutableを付けて宣言する必要があります。`;
+
+/* 論点まとめ問題セット④ : 質問31〜45の論点・正解のみを踏まえ、質問文・選択肢・解説はオリジナルで書き直したもの */
+const ROUNDUP4_TEXT = `Q: Agentforceスペシャリストがエージェントとの会話を評価しています。オブザーバビリティにおいて、インテント（意図）とセッションに関する指標を確認することが重要な理由は何ですか？
+A) エージェントの全体的なパフォーマンスを評価するため
+B) 特定の1つの質問に答えられなかった理由を突き止めるため
+C) エージェントの応答に偏りがないかを評価するため
+D) 個々の発話のトークン数を計測するため
+正解: A
+解説: インテントやセッションに関する指標は、利用頻度・ユーザーが達成しようとしていること・セッションの進み方・成果の有効性など、エージェント全体の運用状況を俯瞰的に把握するための指標です。特定の1問の失敗原因の特定には、より詳細なセッション追跡（エージェント検査など）が必要になります。
+
+---
+
+Q: 重大度の高い問い合わせは人間の担当者にエスカレーションし、重大度の低い問い合わせはサポートケースを作成する、というトリアージロジックを、確定的（誰が見ても同じ結果になる）に実行したいと考えています。最も適切な実装方法はどれですか？
+A) トピックの指示にIF/THEN/ELSEのような自然言語のロジックを書く
+B) トピックの指示に「常に」「決して」といった強い言葉を使って動作を強制する
+C) トリアージ用のアクションでカスタム変数（重大度など）を設定し、その変数の値に応じて各アクションが実行される条件をフィルターで制御する
+D) すべての問い合わせを一律で人間の担当者にエスカレーションする
+正解: C
+解説: 自然言語による指示（IF/THENや「常に」「決して」などの表現）は、LLMの解釈に依存するため確定的な動作を保証できません。カスタム変数と条件付きフィルターを組み合わせることで、変数の値に応じてアクションの実行有無を確定的に制御できます。
+
+---
+
+Q: テキストのかたまり（チャンク）をベクトル化すると何が起きますか？
+A) 意味に基づいた検索ができるように、チャンクの内容を数値表現に変換する
+B) チャンクの内容を暗号化し、安全に保存できるようにする
+C) 元のドキュメントのファイルサイズを圧縮する
+D) チャンクの内容を自動的に要約する
+正解: A
+解説: ベクトル化とは、テキストの意味を捉えた数値表現（埋め込み）に変換する処理です。これにより、キーワードの完全一致だけでなく、意味的に近い内容を検索できるようになります。暗号化やファイル圧縮とは別の目的の処理です。
+
+---
+
+Q: 顧客の会員ランクが特定の条件を満たす場合にのみ、あるアクションを実行できるようにしたいと考えています。このビジネスルールは確定的に適用される必要があります。最も適切な対応はどれですか？
+A) 対象オブジェクトにカスタムの入力規則（検証ルール）を設定する
+B) そのアクションは特定の会員ランクの顧客にのみ使うべきだと明記したトピックの指示を書く
+C) 顧客の会員ランクのフィールドと連動するコンテキスト変数を作成し、そのアクションに条件付きフィルターを追加する
+D) 会員ランクにかかわらず、そのアクションを常に実行可能にしておく
+正解: C
+解説: データの条件に基づいてアクションの実行可否を確定的に制御したい場合は、関連するSalesforceの項目と連動するコンテキスト変数を作成し、条件付きフィルターを適用するのが確実な方法です。入力規則はレコードの作成・更新自体を制御するものであり、エージェントのアクション制御には直接関わりません。
+
+---
+
+Q: ナレッジ記事をもとに質問に回答するエージェントを構築する場合、Agent Builder上ではどのトピックとアクションの組み合わせが表示されますか？
+A) 一般的なQ&Aトピックと、ナレッジ記事回答アクション
+B) 一般的なCRMトピックと、LLMによる質問応答アクション
+C) 一般的なFAQトピックと、ナレッジを使った質問応答アクション
+D) 一般的な情報検索トピックと、Web検索アクション
+正解: C
+解説: ナレッジ記事に基づいて質問に答える標準的な構成は、「一般FAQ」トピックと「ナレッジを使った質問応答」アクションの組み合わせです。これはAgentforceでナレッジベースの質問応答エージェントを作る際の標準的なパターンです。
+
+---
+
+Q: 本番環境ではEinstein Generative AIとWork Summaries用の権限セットがすでに有効になっている組織で、サンドボックスからデプロイできる残りの設定作業はどれが適切ですか？
+A) 問題・解決・概要を保存するカスタムフィールドと、それを更新するクイックアクションを作成し、メッセージングセッションのページレイアウトにラップアップコンポーネントを追加する
+B) 設定メニューからEinsteinを有効化した上で、同様のカスタムフィールドとクイックアクションを作成する
+C) 権限セットの個別ユーザーへの割り当てをサンドボックスで作成し、それをデプロイする
+D) Work Summariesの機能自体を無効化してから再度有効化する
+正解: A
+解説: すでに本番環境で有効になっている機能をサンドボックスで再度有効化する必要はありません。デプロイできるのはカスタムフィールドやクイックアクションなどのメタデータであり、ユーザー単位の権限セット割り当てはデータ的な性質が強く、通常の変更セットではデプロイ対象になりません。
+
+---
+
+Q: 複雑なケース履歴を要約するFlexプロンプトテンプレートで、要約が「問題・実施した手順・次のアクション」という3つの決まった構成に必ず従うようにしたいと考えています。出力の一貫性を確保するために推奨される方法はどれですか？
+A) 思考の連鎖（Chain of Thought）による推論をプロンプトに組み込む
+B) プロンプトの指示の中で、求める出力構成を明示的な見出しとして定義する
+C) プロンプトテンプレートから起動するFlowを使って、応答の書式を整形する
+D) LLMに自由な形式で要約させ、後から人間が体裁を整える
+正解: B
+解説: 出力の構造（見出しや順序）を安定させたい場合、プロンプトの指示の中で「問題・実施した手順・次のアクション」のような具体的な出力構成を明示するのが最も直接的で効果的な方法です。思考の連鎖は内部推論の可視化が目的で、出力構造の固定を保証するものではありません。
+
+---
+
+Q: SDRエージェントが、特定の営業地域のリードにだけアクセスできるようにしたいと考えています。管理者はデータ側で何を用意すべきですか？
+A) 対象地域のロール階層の最上位ロールを持つユーザーを、SDRエージェント用ユーザーとして割り当てる
+B) リードオブジェクトの全レコード参照権限をSDRエージェント用のプロファイルに付与する
+C) 条件に基づく共有ルールを作成し、対象となるリードレコードへのアクセス権をSDRエージェント用ユーザーに付与する
+D) リードオブジェクトの組織全体のデフォルト共有設定を「全体公開」に変更する
+正解: C
+解説: 特定の条件（地域など）に合致するレコードだけにアクセスを絞りたい場合、条件に基づく共有ルールを使ってエージェント用ユーザーにアクセス権を付与するのが、最小権限の原則にも沿った適切な方法です。最上位ロールの割り当てや全レコード参照権限の付与は、必要以上に広い権限を与えてしまいます。
+
+---
+
+Q: 大量のケース・ナレッジ記事データを持つ組織で、AIによるメール応答の生成に古い・不正確な可能性があるレガシー項目が混ざってしまうことを懸念しています。信頼できる定義済みのデータソースだけを根拠に応答を生成させるには、どの仕組みを使うべきですか？
+A) Service AI Grounding
+B) Einstein作業概要
+C) サービス返信（Service Replies）
+D) Einstein会話インサイト
+正解: A
+解説: Service AI Groundingは、AIの応答を特定の信頼できるデータソースに根拠づける仕組みです。これにより、古い・関連性の低いレガシー項目の影響を避け、正確で最新の情報に基づいた応答を生成しやすくなります。作業概要やサービス返信は、根拠となるデータソースを制御する機能そのものではありません。
+
+---
+
+Q: 営業チームでの導入に成功したエージェントを、そのままサービスチーム向けにも展開しようとしています。展開時にAgentforceスペシャリストが特に確認すべき重要なポイントはどれですか？
+A) Service Cloudのユーザーに、Agentforce for Serviceの権限を割り当てる
+B) 標準のサービス系アクションを、そのエージェントにまとめて割り当てる
+C) サービス業務のユースケースに合わせて、標準・カスタムのトピックとアクションを見直し、テストする
+D) エージェントの名称をサービス向けに変更する
+正解: C
+解説: 営業向けに作られたトピックやアクションは、そのままサービス業務の文脈に合うとは限りません。展開先の業務（ここではサービスセンターのユースケース）に照らして、既存のトピック・アクションが適切に機能するかを確認・テストすることが最も重要な考慮事項です。権限の割り当ても必要ですが、機能面の適合性確認が優先されます。
+
+---
+
+Q: 本人確認が完了するまで、機密性の高いアカウント情報の検索アクションをLLMが実行できないように、確実に制御したいと考えています。最も適切な実装方法はどれですか？
+A) Einstein Trust Layerのプロンプト防御ポリシーだけを設定する
+B) ユーザーの確認ステータスを保持するカスタム変数を作成し、そのステータスが真になるまでアカウント検索アクション自体が推論エンジンから見えなくなるよう、利用可能条件のフィルターを設定する
+C) サブエージェントの指示文の中で「確認前にアカウント検索をしないように」と自然言語で指示する
+D) アカウント検索アクションを完全に無効化しておく
+正解: B
+解説: 機密性の高い操作を確実にブロックしたい場合、カスタム変数と「利用可能条件（available when）」のようなフィルターを組み合わせて、条件を満たすまでアクション自体を推論エンジンの選択肢から除外するのが最も確実です。プロンプト防御は不適切な入出力を抑制する仕組みであり、アクション単位の実行可否を保証するものではなく、自然言語の指示もLLMの解釈に依存してしまいます。
+
+---
+
+Q: Agentforceでカスタムのエージェントアクションを作成する際、アクション指示（Action Instructions）の主な目的は何ですか？
+A) 推論エンジンが、いつ・どのアクションを使うべきかを判断する助けになる
+B) 推論エンジンを動かすLLMの温度（Temperature）を定義する
+C) 会話の中でユーザーに対して、このアクションの呼び出し方を説明する
+D) アクションが使用できるデータの範囲を制限する
+正解: A
+解説: アクション指示は、推論エンジン（LLM）に対して「このアクションはいつ・どのように使うべきか」を伝えるための説明文です。LLMの温度設定やユーザー向けの説明はアクション指示の役割ではありません。
+
+---
+
+Q: 営業担当者が長時間の音声・ビデオ通話を行うことが多く、重要な details を聞き逃してしまうことがあります。会話中に見逃した可能性のある詳細を把握できるようにするために推奨されるEinstein Generative AIの機能はどれですか？
+A) 通話の概要（Call Summary）
+B) コールエクスプローラー
+C) 売上概要（Sales Summary）
+D) Einstein会話インサイトのセンチメント分析
+正解: A
+解説: 通話の概要（Call Summary）は、通話内容から重要なポイントを自動的に要約する機能で、長い通話の中で聞き逃した詳細を後から確認するのに役立ちます。コールエクスプローラーは手動での検索、売上概要は営業活動全体の要約が目的で、個別の通話内容の要約とは異なります。
+
+---
+
+Q: 異なるベンダーのAIエージェント同士（例：社内のAgentforceエージェントと外部の調査エージェント）が直接やり取りできるようにするための、専用のプロトコルはどれですか？
+A) モデルコンテキストプロトコル（MCP）
+B) 汎用のAPI
+C) エージェント間通信（Agent-to-Agent, A2A）
+D) REST APIコールアウト
+正解: C
+解説: A2A（Agent-to-Agent）は、異なるベンダー・プラットフォームのAIエージェント同士が安全に通信・連携し、コンテキストを共有して作業を調整するための専用プロトコルです。MCPは主にエージェントとツール・外部リソースを接続するためのプロトコルで、目的が異なります。
+
+---
+
+Q: エージェントに割り当てられたアクションを追加・更新したい場合、Agentforceスペシャリストはどこで作業すればよいですか？
+A) アクションを管理する専用ページ、そのアクションのレコードページ、またはアクションライブラリのタブ
+B) アクションを管理する専用ページ、またはグローバルアクションの設定画面のみ
+C) 詳細ページとグローバルアクションの設定画面のみ
+D) レポートビルダー画面から直接編集する
+正解: A
+解説: エージェントに割り当てるアクションの追加・更新は、アクションを一元管理する専用ページ、個別のアクションのレコードページ、そしてあらかじめ用意されたアクションを参照できるライブラリタブのいずれからでも行うことができます。`;
+
+/* 論点まとめ問題セット⑤ : 質問46〜50の論点・正解のみを踏まえ、質問文・選択肢・解説はオリジナルで書き直したもの */
+const ROUNDUP5_TEXT = `Q: 顧客とエージェントの間で交わされた会話の記録（トランスクリプト）を保存するオブジェクトはどれですか？
+A) エンドユーザーへのメッセージング
+B) メッセージングセッション
+C) ケース
+D) 取引先責任者
+正解: B
+解説: メッセージングセッションオブジェクトは、タイムスタンプやメッセージ内容を含む顧客とエージェントの会話全体の履歴を保持します。ケースは構造化された対応記録を保持しますが、生の会話トランスクリプトそのものは扱いません。会話がケースにエスカレーションされた場合、ケースからメッセージングセッションを参照する形になります。
+
+---
+
+Q: 外部サービス呼び出し（REST APIコールアウト）の応答データを、プロンプトテンプレートの中に含めたいと考えています。この要件を満たす方法として適切なものはどれですか？
+A) 応答のJSONをXMLに変換してからマージフィールドとして使う
+B) 外部サービスレコードのマージフィールドを使って、応答データを直接プロンプトに差し込む
+C) 「プロンプト指示の追加」というフロー要素を使って応答を挿入する
+D) 応答データをカスタム表示ラベルとして事前に登録しておく
+正解: B
+解説: 外部サービス（External Services）を呼び出した結果はレコードとして扱われ、そのレコードのマージフィールドをプロンプトテンプレート内で参照することで、外部APIの応答データをプロンプトに含めることができます。
+
+---
+
+Q: 自社で構築した複数のカスタムAPI（例：投資ポートフォリオAPI）のライブラリを、エージェントが状況に応じて動的に使い分けられるようにしたいと考えています。最も適切な方法はどれですか？
+A) エージェント間通信（A2A）プロトコルに対応させる
+B) モデルコンテキストプロトコル（MCP）サーバーとして、そのAPI群を公開し対応させる
+C) 各APIごとに個別のMuleSoftコネクタをハードコーディングする
+D) すべてのAPIを1つのFlexプロンプトテンプレートにまとめて呼び出す
+正解: B
+解説: MCP（モデルコンテキストプロトコル）は、AIエージェントが外部のツールやAPIの「使い方」を理解し、状況に応じて動的に選択・呼び出せるようにするための標準規格です。カスタムAPI群をMCPサーバーとして公開することで、エージェントの推論エンジンがユーザーの要求に応じて最適なAPIを動的に選べるようになります。A2Aはエージェント同士の連携が目的であり、複数APIの動的選択とは異なる用途です。
+
+---
+
+Q: カスタムオブジェクトの要約を生成AIで自動化したところ、生成される内容に不整合があるとユーザーから報告がありました。プロンプト設計を改善する上で優先すべきプラクティスはどれですか？
+A) プロンプトテストモードを有効化し、ユーザーの一部に異なるプロンプトを割り当てて、成績の良いモデルを標準化する
+B) 適切なグラウンディング、状況に応じた役割設定、明確な指示、継続的なフィードバックを備えた、簡潔で一貫性のあるプロンプトテンプレートを作成する
+C) Salesforceにレビューケースを送信し、Model Playgroundで徹底的にテストしてから出力を調整する
+D) 生成AIの利用自体を一時的に停止し、手動での要約作成に切り替える
+正解: B
+解説: プロンプトの出力が不安定・不整合になる場合、根本的な対処は「正しいデータソースへのグラウンディング」「AIの役割の明確化」「あいまいさのない指示」「継続的なフィードバックによる改善」を備えた、簡潔で一貫したプロンプトテンプレートを設計することです。A/Bテストのような手法や外部への問い合わせは、この根本的なプロンプト設計の改善の代わりにはなりません。
+
+---
+
+Q: 顧客サポートチームの生産性向上のためにAIを活用したいと考えています。次のうち、Prompt Builderの利用が特に適しているユースケースはどれですか？
+A) 新しい製品パッチに関するサポート速報の下書きを作成する
+B) AIが生成したカスタマーサポートエージェントのパフォーマンススコアを算出する
+C) 過去の実績と季節変動をもとに、サポートチケットの件数を予測する
+D) サポートチケットの優先度を自動的にランク付けする
+正解: A
+解説: Prompt Builderは、製品情報などのデータをもとに、サポート速報のような具体的な文章コンテンツを生成AIで作成するのに向いています。パフォーマンススコアの算出やチケット件数の予測は、生成AIではなく予測AI・データ分析の領域であり、Prompt Builderの主な用途ではありません。`;
+
+
+
+function parseQuizText(raw){
+  // 区切り文字の自動判定: "---" があればそれを優先、なければ空行2連続で分割
+  let blocks;
+  if(raw.includes('---')){
+    blocks = raw.split(/\n\s*---\s*\n/);
+  } else {
+    blocks = raw.split(/\n\s*\n\s*\n|\n{2,}(?=Q[:：])/);
+  }
+  blocks = blocks.map(b=>b.trim()).filter(b=>b.length>0);
+
+  const parsed = [];
+  blocks.forEach((block, idx)=>{
+    const lines = block.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
+    let q=null, opts={}, correct=null, exp="";
+    let errors = [];
+
+    lines.forEach(line=>{
+      const qMatch = line.match(/^Q[:：]\s*(.+)/i);
+      const optMatch = line.match(/^([A-D])[\)\.、）]\s*(.+)/i);
+      const ansMatch = line.match(/^正解[:：]\s*([A-D])/i);
+      const expMatch = line.match(/^解説[:：]\s*(.+)/i);
+
+      if(qMatch) q = qMatch[1].trim();
+      else if(optMatch) opts[optMatch[1].toUpperCase()] = optMatch[2].trim();
+      else if(ansMatch) correct = ansMatch[1].toUpperCase();
+      else if(expMatch) exp = expMatch[1].trim();
+    });
+
+    if(!q) errors.push("質問文（Q:）が見つかりません");
+    if(Object.keys(opts).length < 2) errors.push("選択肢が2つ未満です（A)〜D) の形式で書いてください）");
+    if(!correct) errors.push("正解（正解: A など）が見つかりません");
+    else if(!opts[correct]) errors.push(`正解に指定された「${correct}」の選択肢がありません`);
+
+    parsed.push({idx:idx+1, q, opts, correct, exp, errors, raw: block});
+  });
+
+  return parsed;
+}
+
+document.getElementById('btnPreview').addEventListener('click', ()=>{
+  const raw = document.getElementById('quizInput').value;
+  if(!raw.trim()){
+    alert('問題文を貼り付けてください。');
+    return;
+  }
+  previewData = parseQuizText(raw);
+  renderPreview();
+});
+
+function renderPreview(){
+  const area = document.getElementById('previewArea');
+  const validCount = previewData.filter(p=>p.errors.length===0).length;
+  const errorCount = previewData.length - validCount;
+
+  let html = `<div class="quiz-card">
+    <h3>② プレビュー（${previewData.length}問中 ${validCount}問 読み込みOK）</h3>`;
+
+  if(errorCount>0){
+    html += `<p style="color:#e0455a;font-weight:700;">⚠ ${errorCount}問で読み込みエラーがあります。書式を確認してください。</p>`;
+  }
+
+  previewData.forEach(p=>{
+    html += `<div class="preview-q">
+      <div class="qnum">問題 ${p.idx}</div>`;
+    if(p.errors.length>0){
+      html += `<div class="err">❌ ${p.errors.join(' / ')}</div>`;
+    } else {
+      html += `<div class="qtext">${p.q}</div>`;
+      Object.keys(p.opts).forEach(k=>{
+        html += `<div class="opt ${k===p.correct?'correct':''}">${k}) ${p.opts[k]} ${k===p.correct?'✓ 正解':''}</div>`;
+      });
+      if(p.exp) html += `<div class="exp">💡 ${p.exp}</div>`;
+    }
+    html += `</div>`;
+  });
+
+  html += `<div class="btn-row">
+      <button class="btn btn-primary" id="btnSaveQuiz" ${validCount===0?'disabled':''}>この内容で保存する（${validCount}問）</button>
+      <button class="btn btn-secondary" id="btnCancelPreview">キャンセル</button>
+    </div>
+  </div>`;
+
+  area.innerHTML = html;
+
+  document.getElementById('btnCancelPreview').addEventListener('click', ()=>{
+    previewData = null;
+    area.innerHTML = '';
+  });
+
+  const saveBtn = document.getElementById('btnSaveQuiz');
+  if(saveBtn){
+    saveBtn.addEventListener('click', ()=>{
+      const valid = previewData.filter(p=>p.errors.length===0);
+      quizData = quizData.concat(valid);
+      previewData = null;
+      area.innerHTML = '';
+      document.getElementById('quizInput').value = '';
+      document.getElementById('quiz-import-section').style.display = 'none';
+      persistQuizData();
+      showSavedSection();
+    });
+  }
+}
+
+/* ---------- 永続化（Claudeのアーティファクト内で保存。他環境にデプロイした場合は自動的にメモリ内保持にフォールバック） ---------- */
+async function persistQuizData(){
+  try{
+    await window.storage.set('quizData', JSON.stringify(quizData), false);
+    return;
+  }catch(e){
+    // Claude以外の環境（例：Netlifyなどに公開した後）はここに来る
+  }
+  try{
+    localStorage.setItem('agentforceQuizData', JSON.stringify(quizData));
+  }catch(e2){
+    console.log('保存できる環境が見つからないため、今回はメモリ内のみで保持します。', e2);
+  }
+}
+
+async function loadQuizData(){
+  try{
+    const result = await window.storage.get('quizData', false);
+    if(result && result.value){
+      quizData = JSON.parse(result.value);
+      return true;
+    }
+  }catch(e){
+    // Claude内の保存データがない、またはこの環境ではwindow.storageが使えない
+  }
+  try{
+    const raw = localStorage.getItem('agentforceQuizData');
+    if(raw){
+      quizData = JSON.parse(raw);
+      return true;
+    }
+  }catch(e2){
+    // localStorageも使えない環境
+  }
+  return false;
+}
+
+function showSavedSection(){
+  document.getElementById('quiz-import-section').style.display = quizData.length>0 ? 'none' : 'block';
+  document.getElementById('quiz-play-section').style.display = quizData.length>0 ? 'block' : 'none';
+  document.getElementById('savedCount').textContent = `現在 ${quizData.length}問、問題バンクに入っています。`;
+}
+
+document.getElementById('btnAddMore').addEventListener('click', ()=>{
+  document.getElementById('quiz-import-section').style.display = 'block';
+});
+
+document.getElementById('btnCancelAdd').addEventListener('click', ()=>{
+  document.getElementById('quizInput').value = '';
+  document.getElementById('previewArea').innerHTML = '';
+  if(quizData.length>0) document.getElementById('quiz-import-section').style.display = 'none';
+});
+
+document.getElementById('btnClearData').addEventListener('click', ()=>{
+  if(confirm('保存した問題をすべて削除しますか？この操作は取り消せません。')){
+    quizData = [];
+    persistQuizData();
+    showSavedSection();
+    document.getElementById('quiz-import-section').style.display = 'block';
+  }
+});
+
+/* ---------- クイズ実行 ---------- */
+document.getElementById('btnStartQuiz').addEventListener('click', ()=>{
+  const shuffled = [...quizData].sort(()=>Math.random()-0.5);
+  runtimeState = { list: shuffled, pos:0, score:0, answered:false };
+  document.getElementById('quiz-import-section').style.display='none';
+  document.getElementById('quiz-play-section').style.display='none';
+  document.getElementById('quiz-runtime').style.display='block';
+  renderRuntime();
+});
+
+function renderRuntime(){
+  const box = document.getElementById('quiz-runtime');
+  if(runtimeState.pos >= runtimeState.list.length){
+    const total = runtimeState.list.length;
+    const score = runtimeState.score;
+    const pct = Math.round(score/total*100);
+    box.innerHTML = `
+      <div class="score-screen">
+        <div class="big">${score} / ${total}</div>
+        <div class="label">正答率 ${pct}%</div>
+        <div class="tag-row-small">
+          <button class="btn btn-yellow" id="btnRetry">もう一度挑戦</button>
+          <button class="btn btn-secondary" id="btnBackToList">問題一覧に戻る</button>
+        </div>
+      </div>`;
+    document.getElementById('btnRetry').addEventListener('click', ()=>{
+      const shuffled = [...quizData].sort(()=>Math.random()-0.5);
+      runtimeState = { list: shuffled, pos:0, score:0, answered:false };
+      renderRuntime();
+    });
+    document.getElementById('btnBackToList').addEventListener('click', ()=>{
+      document.getElementById('quiz-runtime').style.display='none';
+      showSavedSection();
+    });
+    return;
+  }
+
+  const q = runtimeState.list[runtimeState.pos];
+  const pctProgress = Math.round(runtimeState.pos/runtimeState.list.length*100);
+
+  let html = `
+    <div class="progress-bar"><div class="progress-fill" style="width:${pctProgress}%"></div></div>
+    <div class="quiz-card">
+      <div class="q-num-label">問題 ${runtimeState.pos+1} / ${runtimeState.list.length}</div>
+      <div class="q-text">${linkifyTerms(q.q)}</div>
+      <div id="optsWrap">`;
+
+  Object.keys(q.opts).forEach(k=>{
+    html += `<button class="opt-btn" data-key="${k}">${k}) ${q.opts[k]}</button>`;
+  });
+
+  html += `</div><div id="expWrap"></div></div>`;
+  box.innerHTML = html;
+
+  box.querySelectorAll('.opt-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(runtimeState.answered) return;
+      runtimeState.answered = true;
+      const chosen = btn.dataset.key;
+      const isCorrect = chosen === q.correct;
+      if(isCorrect) runtimeState.score++;
+
+      box.querySelectorAll('.opt-btn').forEach(b=>{
+        b.disabled = true;
+        if(b.dataset.key === q.correct) b.classList.add('correct');
+        else if(b.dataset.key === chosen) b.classList.add('wrong');
+      });
+
+      const expWrap = document.getElementById('expWrap');
+      expWrap.innerHTML = `
+        <div class="exp-box">
+          ${isCorrect ? '🎉 正解！' : '❌ 不正解。正解は '+q.correct+' です。'}
+          ${q.exp ? '<br>💡 '+linkifyTerms(q.exp) : ''}
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="btnNext">${runtimeState.pos+1<runtimeState.list.length?'次の問題へ':'結果を見る'}</button>
+        </div>`;
+
+      document.getElementById('btnNext').addEventListener('click', ()=>{
+        runtimeState.pos++;
+        runtimeState.answered = false;
+        renderRuntime();
+      });
+    });
+  });
+}
+
+/* ---------- 初期化：保存済みデータがあれば復元、なければこれまで作成した全問題を初期データとして投入 ---------- */
+async function initQuiz(){
+  const loaded = await loadQuizData();
+  if(!loaded){
+    const ALL_SEED_TEXT = [TEMPLATE_LOGIC_TEXT, COLLEAGUE_TEXT, ROUNDUP1_TEXT, ROUNDUP2_TEXT, ROUNDUP3_TEXT, ROUNDUP4_TEXT, ROUNDUP5_TEXT].join('\n\n---\n\n');
+    quizData = parseQuizText(ALL_SEED_TEXT).filter(p=>p.errors.length===0);
+    await persistQuizData();
+  }
+  showSavedSection();
+}
+initQuiz();
+
+/* ---------- データ保存の状態表示 ---------- */
+document.getElementById('dataStatus').textContent =
+  '💾 問題バンクはこのアプリ内に保存され、次にこのアプリを開いたときも引き継がれます。';
+</script>
+</body>
+</html>
