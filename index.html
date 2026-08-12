@@ -210,6 +210,7 @@ textarea:focus{border-color:var(--violet);}
 .btn-primary{background:var(--pink);color:#fff;box-shadow:0 4px 10px rgba(255,61,154,0.4);}
 .btn-secondary{background:#EFE7FB;color:var(--violet-deep);}
 .btn-yellow{background:var(--yellow);color:var(--violet-deep);box-shadow:0 4px 10px rgba(255,201,60,0.5);}
+.btn-mistake{background:var(--mint);color:#fff;box-shadow:0 4px 10px rgba(34,211,170,0.5);}
 .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
 
 .preview-q{
@@ -297,6 +298,17 @@ textarea:focus{border-color:var(--violet);}
 .data-status{
   font-size:12px;color:#fff;text-align:center;opacity:.85;margin-top:4px;
 }
+
+.mistake-badge{
+  display:inline-block;
+  background:var(--mint);
+  color:#fff;
+  font-size:11px;
+  font-weight:700;
+  padding:3px 10px;
+  border-radius:999px;
+  margin-left:8px;
+}
 </style>
 </head>
 <body>
@@ -356,12 +368,20 @@ C) 選択肢3
 
     <div id="quiz-play-section" style="display:none;">
       <div class="quiz-card" id="savedInfoCard">
-        <h3>問題バンク</h3>
+        <h3>J.P.N</h3>
         <p id="savedCount"></p>
         <div class="btn-row">
           <button class="btn btn-yellow" id="btnStartQuizOrder">📋 順番通りに始める</button>
           <button class="btn btn-yellow" id="btnStartQuizRandom">🔀 ランダムに始める</button>
           <button class="btn btn-secondary" id="btnAddMore">問題を追加する</button>
+        </div>
+      </div>
+
+      <div class="quiz-card" id="mistakeInfoCard">
+        <h3>L.M<span class="mistake-badge" id="mistakeCountBadge"></span></h3>
+        <p>実際の学習中に間違えた問題だけを集めた復習用セットです。</p>
+        <div class="btn-row">
+          <button class="btn btn-mistake" id="btnStartMistakeQuiz">🔁 L.M（間違えた問題）</button>
         </div>
       </div>
     </div>
@@ -628,6 +648,7 @@ document.getElementById('backToQuizBtn').addEventListener('click', ()=>{
 let activeCat = "all";
 let searchTerm = "";
 let quizData = [];       // 保存済みの問題
+let mistakesData = [];   // 間違えた問題（別問題セット）
 let previewData = null;  // プレビュー中の問題（未保存）
 let runtimeState = null; // クイズ実行中の状態
 
@@ -1339,7 +1360,7 @@ C) データソースは選択後に変更できないため、新しいデー�
 
 ---
 
-Q: Universal Containersは、現在のAIデータマスキングルールが自社のプライバシー・セキュリティポリシーの要件を満たしていないことに気づきました。この問題を解決するために推奨される対応はどれですか？
+Q: Universal Containers社は、現在のAIデータマスキングルールが自社のプライバシー・セキュリティポリシーの要件を満たしていないことに気づきました。この問題を解決するために推奨される対応はどれですか？
 A) Sandbox更新時のデータマスキングを有効化する
 B) Einstein Trust Layerの設定でデータマスキングルールを構成する
 C) 使用しているLLMの設定画面で新しいマスキングルールを追加する
@@ -1996,129 +2017,21 @@ C) Einstein Trust Layerで監査証跡を有効にする
 
 ---
 
-Q: Universal Containers (UC) は、カスタマーサービスエージェントが関連するトラブルシューティング手順とポリシーガイドラインをすばやく取得できるように、AIを活用したサポートアシスタントを展開しています。このアシスタントは、製品マニュアル・ポリシードキュメント・過去のケース解決を含むData Cloudの検索インデックスに依存しています。テスト中に、UCは、エージェントがもはや適用されない古い製品バージョンから無関係な結果を受け取りすぎていることに気付きました。UCはこの問題にどのように対処すべきでしょうか？
-A) 検索インデックスを変更して、過去1年間のドキュメントのみを保存し、古いレコードを削除する
-B) カスタムリトリーバーを作成し、公開日と製品ラインに基づくフィルターを適用する
-C) デフォルトのリトリーバーを使用する。これは検索インデックス全体を既に検索しており、広範囲をカバーしているため
-正解: B
-解説: 検索結果に古い製品バージョンの無関係な情報が過剰に含まれている場合、最も的確な対処法は、カスタムリトリーバーを作成し、公開日や製品ラインといったフィールドに基づくフィルターを適用することです。既存の履歴データを削除することなく関連性の高い結果を返せるようになります。
-
----
-
-Q: ユニバーサル・コンテナーズでは、営業マネージャーが困難な課題に取り組んでいます。新人の若手営業担当者数名が、複雑な取引における反論への対応や価格交渉に苦戦しているためです。マネージャーは、重要な会議の前に、各営業担当者に個別の顧客シナリオを個別に指導する時間がありません。若手営業担当者たちは、難しい会話をシミュレーションすることでプレゼンの練習ができ、担当している商談に特化した個別のフィードバックを得られるツールを求めていました。Agentforceスペシャリストはどのソリューションを推奨すべきですか？
-A) 従業員コーチ（Employee Coach）
-B) SDRエージェント
-C) セールスコーチ（Sales Coach）
+Q: Universal Containers (UC) のサービスエージェントは、ナレッジ記事を検索して顧客が問題を解決できるように設計されている。ナレッジ記事には、重要な詳細情報を補足するPDF添付ファイルがある。UCの報告によると、エージェントはナレッジ記事の優れた要約を提供しているものの、PDF添付ファイルの存在には全く気づいていないようである。Agentforceスペシャリストは、これらの添付ファイルのコンテンツを含めるために、Data Cloud検索インデックスをどのように構成する必要があるか。
+A) ナレッジインデックスの記事のチャンクサイズとトークンの制限を増やして、より大きなコンテキストで添付ファイルの参照をキャプチャできるようにする
+B) Knowledge__kavの「関連添付ファイルを含める」を有効にし、ContentDocumentLink非構造化データモデルオブジェクト（UDMO）をマップする
+C) Data Cloudの「添付ファイルを含める」オプションを使用して、ContentDocumentVersion非構造化データモデルオブジェクト（UDMO）を選択する
 正解: C
-解説: セールスコーチは、営業担当者が顧客とのやり取りをシミュレーションし、反論対応のロールプレイを行いながら、実際の商談データに基づいたパーソナライズされたフィードバックを得られるよう設計されたAI活用ソリューションです。
+解説: 添付ファイルのコンテンツをData Cloud検索インデックスに取り込むには、「添付ファイルを含める」オプションを有効にし、実際のファイル内容を保持するContentDocumentVersion UDMOをマップする必要があります。
 
 ---
 
-Q: Universal Containers (UC) は、すべての必須フィールドを使用してData Cloudで新しいPDFファイルの取り込みを構成し、マッピングと検索インデックスも作成しました。UCは現在、リトリーバーを設定していますが、必須フィールドが欠落していることに気付きました。UCはこれをどのように解決すべきでしょうか？
-A) 必要なフィールドを含む新しいカスタムData Cloudオブジェクトを作成する
-B) 目的のフィールドが含まれるように検索インデックスを更新する
-C) 必要なフィールドが含まれるようにリトリーバーの構成を変更する
+Q: Universal Containersの営業チームは、全国の見込み客と多数のビデオ営業通話を行っている。営業管理部門は、取引条件や顧客の感情などの重要な情報を簡単に理解できる方法を求めている。このリクエストに対して、Agentforceはどのeinstein生成AI機能を推奨すべきか。
+A) アインシュタイン通話概要
+B) アインシュタイン会話インサイト
+C) アインシュタインビデオKPI
 正解: B
-解説: リトリーバーが特定のフィールドを取得できない場合、その根本原因は多くの場合、検索インデックス自体にそのフィールドが含まれていないことにあります。検索インデックスはどのフィールドが検索可能でリトリーバーからアクセス可能かを定義するものであるため、フィールドが欠落している場合はまず検索インデックスにそのフィールドを追加する必要があります。
-
----
-
-Q: 管理者はFlexプロンプトの応答を確認したいテンプレートを作成しましたが、プレビューボタンがグレー表示されています。その理由は何でしょうか？
-A) プロンプトに関連するレコードが選択されていない
-B) プロンプトは保存されておらず、アクティブ化されていない
-C) プロンプトにマージフィールドが挿入されていない
-正解: A
-解説: Flexプロンプトテンプレートでプレビューボタンがグレー表示される最も一般的な理由は、プロンプトに関連するレコードが選択されていないことです。Flexプロンプトテンプレートは、Salesforceレコードから動的にデータを取得する仕組みのため、プレビュー対象となるレコードが指定されていない場合、テンプレートに基づいて生成する内容がなく、プレビュー自体ができません。
-
----
-
-Q: ビジネス関係者は、AIを使用してData Cloudデータに基づく概要を生成したいと考えています。利害関係者はPrompt BuilderからData Cloudデータにアクセスするためにどの方法を使用する必要がありますか？
-A) Flexテンプレートでデータモデルオブジェクト（DMO）に直接アクセスする方法を使用する
-B) Data Cloud関連リストの使用と、プロンプト開始フローを使用したData Cloudデータの取得
-C) 外部APIのみを使用してData CloudデータをPrompt Builderにインポートする
-正解: B
-解説: Data Cloudの情報にPrompt Builderからアクセスする方法として、Data Cloud関連リストを介して直接参照するか、実行時にData Cloudオブジェクトをクエリするプロンプト開始フローを呼び出すことで、動的にデータを取得することができます。Flexテンプレートで直接DMOにアクセスする方法や外部APIの利用は、Prompt Builderの標準的な仕組みではありません。
-
----
-
-Q: Universal Containersのサービスエージェントは、フローアクションを実行して商談レコードを取得します。商談オブジェクトは組織全体でデフォルトで「非公開」に設定されています。一致するレコードが存在し、フローロジックが正しく構成されているにもかかわらず、エージェントは結果を返しません。最小権限の原則を厳密に遵守している解決策はどれですか？
-A) Einstein Service Agentユーザーの権限セットに必要なオブジェクト権限を追加し、適切な共有ルールを設定する
-B) エージェントアクションフローを共有せずにシステムモードで実行するように設定する
-C) 商談オブジェクトの組織全体のデフォルト設定を「公開読み取り専用」に変更し、Einstein Service Agentユーザーがレコードにアクセスできるようにする
-正解: A
-解説: 最小権限の原則とは、タスクの実行に必要な最小限のアクセス権のみをエージェントに付与することを意味します。商談オブジェクトへのアクセスが組織全体のデフォルト設定「非公開」によって制限されている場合、Einstein Service Agentユーザーの権限セットに適切なオブジェクト権限を追加し、共有ルールまたは同等の仕組みを通じて必要なレコードレベルのアクセスを付与するのが適切です。
-
----
-
-Q: ユニバーサル・コンテナーズは、顧客の注文追跡、返品処理、顧客ロイヤルティサポートに対応するため、Agentforceを導入しました。エージェントは、顧客からの問い合わせに対する会話の柔軟性と、アカウント情報にアクセスする前に本人確認手順を確実に実行することとのバランスを取る必要があります。Agentforce Agent Scriptにおけるハイブリッド推論を正しく説明しているのは、次のうちどれですか？
-A) ハイブリッド推論では、複数の大規模言語モデル（LLM）を同時に使用し、1つのモデルが会話応答を処理し、別のモデルがフロー統合を通じて決定論的なビジネスロジックを実行する
-B) ハイブリッド推論では、宣言的命令にはキャンバスビュー、手続き的命令にはスクリプトビューが必要である
-C) ハイブリッド推論は、大規模言語モデル（LLM）の解釈を可能にする宣言的な自然言語命令と、保証された実行順序を強制する手続き的命令を組み合わせる
-正解: C
-解説: Agent Scriptにおけるハイブリッド推論とは、柔軟なLLM駆動の会話処理と、決定論的な手続き型の制御を同一のエージェントロジック内で組み合わせることを指します。手続き的なロジック（本人確認の実行順序を強制するなど）を明示することで、業務上重要な処理を確実に実行させながら、会話部分は柔軟性を保つことができます。
-
----
-
-Q: Universal Containers (UC) は最近、Einstein Generative AI機能を導入し、ケースレコードを要約するカスタムプロンプトを作成しました。ユーザーから、生成されたケース要約が適切な情報を返さないという報告がありました。プロンプトのパフォーマンスが悪い理由は何でしょうか？
-A) プロンプトテンプレートのバージョンが、選択したLLMと互換性がない
-B) グラウンディングに使用されているデータが不正確または不完全である
-C) Einstein Trust Layerが正しく構成されていない
-正解: B
-解説: グラウンディングとは、プロンプトテンプレートを通じてAIにコンテキスト（この場合はケースレコードのデータ）を提供するプロセスです。グラウンディングに使用されるデータが誤っていたり不完全であったりする場合、生成される要約も不正確になります。これは生成AIの出力品質が低下する一般的な原因であり、トラブルシューティングの際にまず確認すべき点です。
-
----
-
-Q: Universal Containersは、チャットでよくある質問に対する定型的な回答を入力する時間を最小限に抑え、ケースフィールドの値を提案することでチャット後の分析を減らすことで、全体的な顧客サポート処理時間を短縮したいと考えています。この取り組みを可能にするのは、Agentforce for Service機能のどの組み合わせですか？
-A) アインシュタインの返信推奨とケース分類
-B) アインシュタインの返信推奨事項とケース概要
-C) Einsteinサービスの返信と作業概要
-正解: A
-解説: 「Einsteinの返信推奨」は、チャット中に会話の文脈、過去のデータ、ナレッジ記事に基づいた定型的な返信候補をAIが提案する機能であり、担当者が定型的な回答を入力する時間を大幅に削減します。「ケース分類」は、チャット記録などのケース詳細をAIが分析し、件名・優先度・解決内容などのケースフィールドの値を自動的に提案する機能で、チャット後のフィールド入力作業の手間を軽減します。
-
----
-
-Q: Universal Containersは、Einstein StudioのAIを活用した予測を使用してデータを分析することで、販売業務の効率を向上させることに関心を持っています。このシナリオに適したユースケースはどれですか？
-A) プロモーションメッセージに対する顧客の感情を予測する
-B) 取引先の顧客生涯価値を予測する
-C) 新製品カタログから最も人気のある製品を予測する
-正解: B
-解説: 販売業務の効率を向上させるためにEinstein Studioを活用する上で、非常に価値の高いユースケースの一つが顧客生涯価値（CLV）の予測です。CLVを予測することで、営業チームは価値の高い取引先に注力し、顧客維持・クロスセル・長期的なエンゲージメントに関するより情報に基づいた意思決定を行うことができます。
-
----
-
-Q: Agentforceの「ナレッジで質問に回答」アクションでは、Data Cloudはどのように活用されますか？
-A) Data Cloudは必須ではない。エージェントはCRMから直接記事にアクセスできる
-B) Data Cloudは、インデックス化されたナレッジ記事を保存・管理する
-C) Data Cloudは、ナレッジ記事を更新するリアルタイムのデータストリームを提供する
-正解: B
-解説: Agentforceの「ナレッジで質問に回答」アクションでは、Data CloudがAI駆動の応答に使用されるナレッジ記事を保存・管理・インデックス化する中心的な役割を担っています。サービス担当者や顧客が回答を必要とする際、AIシステムはData Cloudに問い合わせて関連する記事をリアルタイムで取得します。
-
----
-
-Q: Universal Containers (UC) は、顧客の生涯価値スコアと市場セグメントに基づいて、3つの異なる電子メールのいずれかを顧客に送信する予定です。UCでは電子メールが選択された理由を説明する必要があることを考慮すると、これを実現するためにUCはどのAIモデルを使用すればよいでしょうか？
-A) 予測モデルと生成モデル
-B) 生成モデル
-C) 予測モデル
-正解: C
-解説: 予測モデルはデータを分析して結果を予測するために使用され、顧客の属性に基づいて最も適切な電子メールを予測することになります。さらに、予測モデルはどの決定がなぜ下されたのかを説明する能力（説明可能性）を提供できるため、UCの「電子メールが選択された理由を説明する必要がある」という要件にも合致します。
-
----
-
-Q: ユニバーサルコンテナーズは、顧客が注文状況を確認できるようにサービスエージェントを設定しました。設定項目は以下の通りです：名前「注文問い合わせ」、分類の説明「過去90日以内に行われた注文の追跡詳細や配達予定日など、注文ステータスを確認するユーザー要求を処理します」、業務範囲「認証済みのユーザーが過去90日以内に行った注文のステータスを確認するためのサポートのみを担当します」。このトピックを選択するためにAgentforce推論エンジンによって使用される情報はどれですか？
-A) トピック名と分類の説明
-B) トピック名とスコープ
-C) 分類の説明と範囲（スコープ）
-正解: C
-解説: Agentforceの推論エンジンは主に「分類の説明」と「スコープ（業務範囲）」のフィールドに基づいて、ユーザーの意図に最も合致するトピックを判断します。分類の説明はトピックの目的とコンテキストを定義し、スコープはそのトピックがいつ・どのようにトリガーされるべきかという運用上の境界を示します。
-
----
-
-Q: Universal ContainersのAgentforceは、新しいフィールド生成プロンプトテンプレートを設定しようとしています。手順は以下の通りです：1. 新しいフィールド生成プロンプトテンプレートを作成する 2. オブジェクトタイプとしてケースを選択する 3. ターゲットフィールドとしてカスタムフィールドAI_Analysis__cを選択する。プロンプトテンプレートを作成した後、保存・テスト・アクティブ化しますが、ケースレコードに移動すると、AI分析フィールドの編集鉛筆（スパークル）アイコンが表示されません。Agentforceスペシャリストが見逃した重要なステップはどれですか？
-A) フィールド生成プロンプトテンプレートを有効化した後、ケースオブジェクトのLightningページレイアウトを再有効化し忘れた
-B) ケースオブジェクトはフィールド生成ではサポートされていないため、代わりにEinsteinサービス返信を使用する必要があることを忘れていた
-C) Lightningページレイアウトを編集し、フィールドをプロンプトテンプレートに関連付けるのを忘れた
-正解: C
-解説: フィールド生成プロンプトテンプレートがスパークルアイコンを正しく表示するためには、ターゲットフィールドをLightningページレイアウト上でそのプロンプトテンプレートと明示的に関連付ける必要があります。プロンプトテンプレート自体がアクティブ化されていても、ページレイアウトへのフィールド追加とテンプレートとの関連付けが行われていなければ、そのフィールドは通常のフィールドとして動作してしまいます。`;
+解説: Einstein会話インサイトは、ビデオ・音声を含む営業通話を分析し、重要な瞬間、取引条件、競合への言及、顧客の感情などを抽出してSalesforce CRMに直接反映します。これにより、営業管理者は通話全体を手動で確認することなく要点を把握できます。`;
 
 /* 論点まとめ問題セット⑦ : Q166〜Q190相当の論点・正解を踏まえ、質問文・選択肢・解説はオリジナルで書き直したもの */
 const ROUNDUP7_TEXT = `Q: ユニバーサル・コンテナーズ（UC）は大規模な見本市に参加し、イベントバッジのスキャンを通じて数千件の新規リードを獲得した。UCは、各リードにタイムリーかつ個別にフォローアップすることに苦労している。24時間365日リードを評価・育成し、見込み客の質問に正確に答え、適格な見込み客との会議を自動的に予約し、担当者が関係構築と取引の成立に集中できるようにしたい。UCはどのAgentforce機能を実装すべきか。
@@ -2344,7 +2257,151 @@ C) アインシュタインビデオKPI
 正解: B
 解説: Einstein会話インサイトは、ビデオ・音声を含む営業通話を分析し、重要な瞬間、取引条件、競合への言及、顧客の感情などを抽出してSalesforce CRMに直接反映します。これにより、営業管理者は通話全体を手動で確認することなく要点を把握できます。`;
 
+/* ============================================================
+   間違えた問題セット（別問題）
+   実際の学習中に間違えたものだけを集めた復習用セット
+============================================================ */
+const MISTAKES_TEXT = `Q: Universal Containers の Agentforce Specialist が新しい Field Generation プロンプトテンプレートを設定しました。手順は以下のとおりです。1. 新しい Field Generation プロンプトテンプレートを作成 2. オブジェクトとして「Case」を選択 3. 対象フィールドにカスタム項目「AI_Analysis__c」を指定。テンプレートを保存・テスト・有効化したあと、Case レコードの編集モードで Sparkleアイコンが表示されず、通常の編集フィールドとして動作してしまいます。どの重要なステップを見落としたのでしょうか？
+A) Field Generation テンプレートを有効化後に Lightning ページレイアウトを再アクティベートし忘れた
+B) Case オブジェクトは Field Generation に対応しておらず、Service Replies を使うべきと勘違いした
+C) Lightning レコードページを編集し、対象フィールドに作成したプロンプトテンプレートを紐付ける設定を忘れた
+正解: C
+解説: Field Generationを機能させるには、プロンプトテンプレート作成後、Lightningページレイアウトでフィールドとテンプレートを明示的に関連付ける必要があります。ページレイアウトの再アクティベートは不要で、根本原因はフィールドとテンプレートの関連付け漏れです。またCaseオブジェクトはField Generationをサポートしており、Service Repliesはチャットやメール返信用の別機能です。
 
+---
+
+Q: 営業マネージャーが Agent Assistant に「自分の未完了商談を一覧表示して」と頼みました。Agentforce内の大規模言語モデル（LLM）は、どのようにしてこの指示を認識し、未完了商談を表示するアクションを特定・実行するのでしょうか？
+A) LLM がユーザーの要求を解釈し、関連するトピックとアクションを動的に計画・特定して実行し、未完了商談の取得・表示を行う
+B) LLM が静的なルールセットを参照し、ユーザー要求と事前定義済みトピック・アクションをマッチングして動的解釈を行わずに実行する
+C) ダイアログパターンを用い、ユーザーのクエリを利用可能なトピック・アクション・ステップにマッチさせて各ステップを実行する
+正解: A
+解説: Atlas Reasoning Engineが自然言語を理解し、適切なトピックとアクションを動的に選択して実行計画を生成します。Agentforceは静的ルールや単純なパターンマッチングではなく、動的な推論エンジンによって多様なユーザーリクエストに柔軟に対応します。
+
+---
+
+Q: Universal Containers（UC）は、Service Agentの対応時間を短縮するため、既存のKnowledge記事に基づいて推奨返信（recommended replies）を提供するGenerative AI機能を導入したいと考えています。どのAI機能（AI capability）をService Agent向けにトレーニングすべきでしょうか？
+A) Knowledge Replies
+B) Service Replies
+C) Case Replies
+正解: B
+解説: Einstein Service Repliesは、チャットやメール対応時にKnowledge記事や過去のケースデータを基に、AI生成による返信を提供する機能です。「Knowledge Replies」「Case Replies」という独立した正式な機能名は存在しません。
+
+---
+
+Q: Universal Containers 管理者は Einstein Data Libraries を設定中に、新しいライブラリを作成したところファイルアップロードのオプションしか表示されず、Salesforce Knowledge ベースをデータソースとして設定するオプションが表示されませんでした。この問題の最も可能性の高い原因は何でしょうか？
+A) 現在の組織には、KnowledgeベースのData Libraryオプションをサポートするために必要なEinstein for Serviceの権限がない
+B) 管理者はLightning Experienceを使用していない
+C) Salesforce Knowledgeが組織で有効になっていない
+正解: C
+解説: Salesforce Knowledgeが有効になっていない場合、Data LibraryでKnowledgeベースのデータソースオプションは表示されません。管理者はすでにライブラリ作成画面にアクセスできているため、権限不足やLightning Experience未使用が原因とは考えにくいです。
+
+---
+
+Q: Universal Containers（UC）の内部監査チームは、生成されたプロンプト内で住所情報が適切にマスクされているかをAgentforceに検証するよう依頼しました。Agentforce Specialistは、Einstein Trust Layerでマスクされたデータのプライバシーをどのように検証すべきでしょうか？
+A) 住所フィールドでデータ暗号化を有効化する
+B) AI監査トレイルを検証する
+C) プラットフォームイベントログを確認する
+正解: B
+解説: AI監査証跡はEinstein Trust Layerの全プロセスを記録し、データマスキング/デマスキングイベントを含む詳細な情報を提供します。データ暗号化は保存時のセキュリティ対策でありマスキング検証には使えず、プラットフォームイベントログはAI固有のマスキング情報を含みません。
+
+---
+
+Q: Universal Containers（UC）は、"Answer Questions with Knowledge"アクションを展開する際に、エージェントがアクセスできるナレッジ記事を制限したいと考えています。UCはどのように実現すべきでしょうか？
+A) エージェントに許可する記事タイトルまたは記事IDの一覧をスコープ指示として定義する
+B) カスタム項目で記事をフィルタリングするようにData Library Retrieverの設定を更新する
+C) ナレッジ記事にデータカテゴリを割り当て、AgentforceのData Libraryでデータカテゴリフィルタを設定する
+正解: C
+解説: データカテゴリはSalesforce Knowledgeの標準機能で、記事を階層的に分類しアクセス制御を行えます。Data Libraryの設定でデータカテゴリによるフィルタリングを行うことで、エージェントがアクセスできる記事を効果的に制限できます。記事ID一覧の管理やカスタム項目でのフィルタリングは非効率・非標準的です。
+
+---
+
+Q: Universal Containersは、Salesforceにカスタム UX を実装し、ユーザーがセールスオーダー番号を入力できるようにしたいと考えています。その後、システムはカスタムプロンプトテンプレートを呼び出して、セールスオーダーヘッダーおよびセールスオーダー詳細のサマリーを作成・表示します。
+A) テンプレートトリガーフローを作成し、標準の「Prompt Template」フローアクションを使用してプロンプトテンプレートを呼び出す
+B) スクリーンフローを作成し、セールスオーダー番号を収集して、標準の「Prompt Template」フローアクションを使用してプロンプトテンプレートを呼び出す
+C) Flexテンプレートを使ってカスタムUXとプロンプトの表示を行う
+正解: B
+解説: スクリーンフローはカスタムUXを実装し、ユーザー入力を収集できます。収集したセールスオーダー番号を使用して、フローアクションとしてプロンプトテンプレートを呼び出し、AI生成されたサマリーを表示できます。テンプレートトリガーフローやFlexテンプレート単体ではユーザー入力を収集するUIを提供できません。
+
+---
+
+Q: Universal Containers (UC) は、Data Cloud に対して PDF ファイル取り込みを新規に設定し、必要なすべてのフィールドを含めたマッピングおよび検索インデックスを作成しました。現在、リトリーバーを設定中に、必須フィールドがインデックスに含まれていないことに気付きました。UC はどのように対応すべきでしょうか？
+A) 必要なフィールドを含むように新しいカスタムData Cloudオブジェクトを作成する
+B) 検索インデックスを更新して、欠けているフィールドを含める
+C) リトリーバーの設定を変更して、欠けているフィールドを含める
+正解: B
+解説: リトリーバーは検索インデックスに定義されたフィールドのみを参照できるため、インデックスに存在しないフィールドをリトリーバー側の設定だけで追加することはできません。既存の検索インデックスにフィールドを追加することで、リトリーバーでも必要なフィールドが利用可能になります。
+
+---
+
+Q: Data Cloud 内で AI リトリーバー機能はどのように動作しますか？
+A) プロンプトのコンテキストに基づき、インデックス化されたリポジトリをコンテキスト検索して関連データを取得する
+B) ベクトル埋め込みに基づいたセマンティック類似度エンジンを使用し、Data Cloud から関連レコードを取得する
+C) Data Cloud テーブルに対して標準の SOQL クエリを実行し、グラウンディングデータを取得する
+正解: B
+解説: Data CloudのAI retrieverは、テキストや非構造化データをベクトル埋め込みに変換し、ベクトル間の距離計算により意味的に類似したレコードを検索します。SOQLは構造化データ用のクエリ言語であり非構造化データには対応できず、単純なインデックス検索では意味的な類似性を理解できません。
+
+---
+
+Q: ユニバーサルコンテナ（UC）は、顧客に最新かつ有効な関連ポリシーとコンプライアンス情報を提供するAgentforceサービスエージェントを構築したいと考えています。エージェントには、人事ポリシー等をセマンティックに検索する機能、公開されているナレッジに基づいた応答を保証する機能、手動で再構成することなくナレッジの更新を即座に反映する機能が必要です。UCは何をすべきでしょうか？
+A) 幻覚を防ぐために、ポリシー応答をAIモデルに手動で追加する
+B) AI検索用にポリシードキュメントを保存し、インデックスを作成するAgentforceデータライブラリを設定する
+C) エージェントがすべての内部記録と過去の顧客からの問い合わせを検索できるようにする
+正解: B
+解説: Data LibraryはKnowledgeと統合し、ポリシーやコンプライアンス文書をセマンティック検索可能な形でインデックス化します。RAGによるグラウンディングで信頼性の高い応答を保証し、Knowledge更新は自動的に反映されるため、全ての要件を満たします。モデル自体のカスタマイズは不可能であり、全記録の無差別検索は関連性の低い情報を含むリスクがあります。
+
+---
+
+Q: Universal Containers（UC）は、生成された出力をフィールドに入力するための新しいカスタムプロンプトテンプレートを作成しています。UCはEinstein Trust Layerを有効化し、AI監査データの収集とモニタリングを実施して、導入や機能強化の可能性を検証しました。UCはどのタイプのプロンプトテンプレートを使用すべきでしょうか？また、どのような点を検討すべきでしょうか？
+A) Flex、ダイナミックフィールドが有効になっている
+B) フィールド生成、および動的フォームが有効になっていること
+C) フィールド生成、および動的フィールドが有効になっていること
+正解: B
+解説: フィールド生成テンプレートは、AIが生成したコンテンツを直接レコードのフィールドに入力するための専用タイプです。この機能を使用するには、Lightning Experienceの動的フォームを有効化する必要があります。「動的フィールド」という機能は存在せず、正しくは「動的フォーム（Dynamic Forms）」です。
+
+---
+
+Q: Agentforceテストセンターについて真実は何ですか？
+A) テストを実行すると、運用環境でCRMデータが変更されるリスクがあります
+B) Agentforceテストセンターは実稼働環境でのみ使用できます
+C) テストを実行してもEinsteinリクエストは消費されません
+正解: A
+解説: Salesforceヘルプには「Testing agents can modify CRM data」と明記されており、テスト実行時のデータ変更リスクが警告されています。Testing CenterはSandbox環境にも対応しており実稼働環境限定ではなく、テスト実行時もEinsteinリクエストは消費される仕様です。
+
+---
+
+Q: ユニバーサルコンテナーズは、顧客サービス業務を強化するためにカスタムエージェントアクションを実装しています。開発チームは、カスタムエージェントアクションの適切な構成と機能を確保するために、コアコンポーネントを理解する必要があります。開発チームはカスタムエージェントアクションの構成で何を確認すべきでしょうか？
+A) 指示
+B) 出力タイプ
+C) アクショントリガー
+正解: A
+解説: Salesforceヘルプでは「カスタムアクションを作成する際は、『アクションの指示（Instructions）』を特に正確に記述することが最も重要」と明記されています。LLMはこの指示文をもとに、いつ・どのようにアクションを実行すべきか判断します。出力タイプはUI表示制御、アクショントリガーは複数考慮点の一つに過ぎません。
+
+---
+
+Q: Universal Containers（UC）は最近、Einstein Generative AI機能をリリースし、ケースレコードを要約するためのカスタムプロンプトを作成しました。ユーザーから、生成されたケースサマリーが適切な情報を返さないという報告があります。プロンプトのパフォーマンスが低い理由は何でしょうか？
+A) プロンプトテンプレートのバージョンは、選択したLLMと互換性がありません
+B) Einstein Trust Layerが正しく構成されていません
+C) 接地に使用されているデータが不正確または不完全です
+正解: C
+解説: Einstein Generative AIが要約を生成する際、関連するケースレコードなどの組織データに「接地（グラウンディング）」して情報を引き出します。この元データ自体が不正確・不完全だと、AIは誤った情報や不完全な情報を基に要約を作成してしまいます。互換性エラーやTrust Layerの設定不備は、情報の質の低さより技術的なエラーとして現れやすい点で異なります。
+
+---
+
+Q: Universal Containers社には、ビジネス要件を完全に満たしていない標準のメールプロンプトテンプレートが現在使用されています。Agentforceスペシャリストは、標準プロンプトメールテンプレートの内容を活用し、ビジネス要件を完全に満たすようにカスタマイズするために、どのような手順を踏むべきでしょうか？
+A) 新しいバージョンとして保存し、必要に応じて編集する
+B) 既存のテンプレートを複製し、必要に応じて変更する
+C) 新しいテンプレートとして保存し、必要に応じて編集する
+正解: C
+解説: 標準プロンプトテンプレートは読み取り専用でバージョン管理できず、「Save as New Version」機能はカスタム作成済みのテンプレート用です。またPrompt Builderに「Clone」機能は存在しません。標準テンプレートは「Save as New Template」でコピーを作成し、そこに指示やリソースを追加してカスタマイズする必要があります。
+
+---
+
+Q: ユニバーサル・コンテナーズの営業担当者は、多忙なスケジュールの中、見込み客や既存顧客に対し契約更新や新規取引に関するメールによるフォローアップに時間を割いています。過去の効果的なやり取りに基づいてテキストを作成し、見込み客にパーソナライズされたメールを作成するのに役立つ標準的なエージェントアクションはどれですか？
+A) エージェントのアクション: 営業メールの修正案
+B) エージェントアクション: 記録の要約
+C) エージェントのアクション: 類似の機会を探す
+正解: A
+解説: 「営業メールの修正案」アクションは、過去の成功したコミュニケーションや顧客履歴を分析し、契約更新や新規取引に関するパーソナライズされたメールを自動生成する標準アクションです。「記録の要約」はメール作成機能を含まず、「類似の機会を探す」は過去の類似商談検索が目的でメール作成の自動化には直接対応していません。`;
 
 function parseQuizText(raw){
   // 区切り文字の自動判定: "---" があればそれを優先、なければ空行2連続で分割
@@ -2487,10 +2544,57 @@ async function loadQuizData(){
   return false;
 }
 
+/* ---------- 間違えた問題（別問題）の永続化 ---------- */
+async function persistMistakesData(){
+  try{
+    await window.storage.set('mistakesData', JSON.stringify(mistakesData), false);
+    return;
+  }catch(e){
+    // Claude以外の環境はここに来る
+  }
+  try{
+    localStorage.setItem('agentforceMistakesData', JSON.stringify(mistakesData));
+  }catch(e2){
+    console.log('保存できる環境が見つからないため、今回はメモリ内のみで保持します。', e2);
+  }
+}
+
+async function loadMistakesData(){
+  try{
+    const result = await window.storage.get('mistakesData', false);
+    if(result && result.value){
+      mistakesData = JSON.parse(result.value);
+      return true;
+    }
+  }catch(e){
+    // 保存データがない、またはこの環境ではwindow.storageが使えない
+  }
+  try{
+    const raw = localStorage.getItem('agentforceMistakesData');
+    if(raw){
+      mistakesData = JSON.parse(raw);
+      return true;
+    }
+  }catch(e2){
+    // localStorageも使えない環境
+  }
+  return false;
+}
+
+function seedMistakesData(){
+  mistakesData = parseQuizText(MISTAKES_TEXT).filter(p=>p.errors.length===0);
+}
+
+function showMistakeSection(){
+  const badge = document.getElementById('mistakeCountBadge');
+  badge.textContent = `${mistakesData.length}問`;
+}
+
 function showSavedSection(){
   document.getElementById('quiz-import-section').style.display = quizData.length>0 ? 'none' : 'block';
   document.getElementById('quiz-play-section').style.display = quizData.length>0 ? 'block' : 'none';
   document.getElementById('savedCount').textContent = `現在 ${quizData.length}問、問題バンクに入っています。`;
+  showMistakeSection();
 }
 
 document.getElementById('btnAddMore').addEventListener('click', ()=>{
@@ -2512,9 +2616,10 @@ document.getElementById('btnResetToDefault').addEventListener('click', ()=>{
 });
 
 /* ---------- クイズ実行 ---------- */
-function startQuiz(shouldShuffle){
-  const list = shouldShuffle ? [...quizData].sort(()=>Math.random()-0.5) : [...quizData];
-  runtimeState = { list, pos:0, score:0, answered:false, wasShuffled:shouldShuffle };
+function startQuiz(shouldShuffle, sourceList){
+  const base = sourceList || quizData;
+  const list = shouldShuffle ? [...base].sort(()=>Math.random()-0.5) : [...base];
+  runtimeState = { list, pos:0, score:0, answered:false, wasShuffled:shouldShuffle, sourceList: sourceList || null };
   document.getElementById('quiz-import-section').style.display='none';
   document.getElementById('quiz-play-section').style.display='none';
   document.getElementById('quiz-runtime').style.display='block';
@@ -2523,6 +2628,7 @@ function startQuiz(shouldShuffle){
 
 document.getElementById('btnStartQuizOrder').addEventListener('click', ()=>startQuiz(false));
 document.getElementById('btnStartQuizRandom').addEventListener('click', ()=>startQuiz(true));
+document.getElementById('btnStartMistakeQuiz').addEventListener('click', ()=>startQuiz(true, mistakesData));
 
 function renderRuntime(){
   const box = document.getElementById('quiz-runtime');
@@ -2541,7 +2647,8 @@ function renderRuntime(){
       </div>`;
     document.getElementById('btnRetry').addEventListener('click', ()=>{
       const wasShuffled = runtimeState.wasShuffled;
-      startQuiz(wasShuffled);
+      const sourceList = runtimeState.sourceList;
+      startQuiz(wasShuffled, sourceList);
     });
     document.getElementById('btnBackToList').addEventListener('click', ()=>{
       document.getElementById('quiz-runtime').style.display='none';
@@ -2611,6 +2718,11 @@ async function initQuiz(){
   if(!loaded){
     seedDefaultQuizData();
     await persistQuizData();
+  }
+  const mistakesLoaded = await loadMistakesData();
+  if(!mistakesLoaded){
+    seedMistakesData();
+    await persistMistakesData();
   }
   showSavedSection();
 }
