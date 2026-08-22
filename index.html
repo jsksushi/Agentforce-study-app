@@ -381,7 +381,16 @@ C) 選択肢3
         <h3>L.M<span class="mistake-badge" id="mistakeCountBadge"></span></h3>
         <p>実際の学習中に間違えた問題だけを集めた復習用セットです。</p>
         <div class="btn-row">
-          <button class="btn btn-mistake" id="btnStartMistakeQuiz">🔁 L.M（間違えた問題）</button>
+          <button class="btn btn-mistake" id="btnStartMistakeQuiz">🔁 L.M</button>
+        </div>
+      </div>
+
+      <div class="quiz-card" id="weakInfoCard">
+        <h3>苦手問題<span class="mistake-badge" id="weakCountBadge"></span></h3>
+        <p>J.P.N・L.Mのクイズ中に間違えた問題が自動でここに貯まります。何度でも再挑戦して弱点をつぶしましょう。</p>
+        <div class="btn-row">
+          <button class="btn btn-mistake" id="btnStartWeakQuiz">🎯 苦手問題に再挑戦</button>
+          <button class="btn btn-secondary" id="btnResetWeak">🗑️ 苦手問題をリセット</button>
         </div>
       </div>
     </div>
@@ -655,6 +664,7 @@ let activeCat = "all";
 let searchTerm = "";
 let quizData = [];       // 保存済みの問題
 let mistakesData = [];   // 間違えた問題（別問題セット）
+let weakData = [];       // 苦手問題（クイズ中に間違えた問題が自動で貯まるセット）
 let previewData = null;  // プレビュー中の問題（未保存）
 let runtimeState = null; // クイズ実行中の状態
 
@@ -2753,9 +2763,69 @@ function seedMistakesData(){
   mistakesData = parseQuizText(MISTAKES_TEXT).filter(p=>p.errors.length===0);
 }
 
+/* ---------- 苦手問題（自動収集）の永続化 ---------- */
+async function persistWeakData(){
+  try{
+    await window.storage.set('weakData', JSON.stringify(weakData), false);
+    return;
+  }catch(e){
+    // Claude以外の環境はここに来る
+  }
+  try{
+    localStorage.setItem('agentforceWeakData', JSON.stringify(weakData));
+  }catch(e2){
+    console.log('保存できる環境が見つからないため、今回はメモリ内のみで保持します。', e2);
+  }
+}
+
+async function loadWeakData(){
+  try{
+    const result = await window.storage.get('weakData', false);
+    if(result && result.value){
+      weakData = JSON.parse(result.value);
+      return true;
+    }
+  }catch(e){
+    // 保存データがない、またはこの環境ではwindow.storageが使えない
+  }
+  try{
+    const raw = localStorage.getItem('agentforceWeakData');
+    if(raw){
+      weakData = JSON.parse(raw);
+      return true;
+    }
+  }catch(e2){
+    // localStorageも使えない環境
+  }
+  return false;
+}
+
+/* 間違えた問題を苦手問題セットに追加する（同じ問題文があれば重複追加しない） */
+function addToWeakData(question){
+  const exists = weakData.some(w => w.q === question.q);
+  if(!exists){
+    weakData.push({
+      idx: weakData.length + 1,
+      q: question.q,
+      opts: question.opts,
+      correct: question.correct,
+      exp: question.exp,
+      errors: []
+    });
+    persistWeakData();
+    showMistakeSection();
+  }
+}
+
+function showWeakSection(){
+  const badge = document.getElementById('weakCountBadge');
+  badge.textContent = `${weakData.length}問`;
+}
+
 function showMistakeSection(){
   const badge = document.getElementById('mistakeCountBadge');
   badge.textContent = `${mistakesData.length}問`;
+  showWeakSection();
 }
 
 function showSavedSection(){
@@ -2797,6 +2867,20 @@ function startQuiz(shouldShuffle, sourceList){
 document.getElementById('btnStartQuizOrder').addEventListener('click', ()=>startQuiz(false));
 document.getElementById('btnStartQuizRandom').addEventListener('click', ()=>startQuiz(true));
 document.getElementById('btnStartMistakeQuiz').addEventListener('click', ()=>startQuiz(true, mistakesData));
+document.getElementById('btnStartWeakQuiz').addEventListener('click', ()=>{
+  if(weakData.length===0){
+    alert('苦手問題はまだ貯まっていません。J.P.NやL.Mのクイズで間違えると、ここに自動で追加されます。');
+    return;
+  }
+  startQuiz(true, weakData);
+});
+document.getElementById('btnResetWeak').addEventListener('click', ()=>{
+  if(confirm('苦手問題セットをすべて削除しますか？（J.P.N・L.Mのデータには影響しません）')){
+    weakData = [];
+    persistWeakData();
+    showWeakSection();
+  }
+});
 
 function renderRuntime(){
   const box = document.getElementById('quiz-runtime');
@@ -2849,6 +2933,7 @@ function renderRuntime(){
       const chosen = btn.dataset.key;
       const isCorrect = chosen === q.correct;
       if(isCorrect) runtimeState.score++;
+      else addToWeakData(q);
 
       box.querySelectorAll('.opt-btn').forEach(b=>{
         b.disabled = true;
@@ -2892,6 +2977,7 @@ async function initQuiz(){
     seedMistakesData();
     await persistMistakesData();
   }
+  await loadWeakData(); // 苦手問題は初期データなし。無ければ空のまま。
   showSavedSection();
 }
 initQuiz();
